@@ -7,7 +7,7 @@ import { ThemeProvider } from '../contexts/ThemeContext';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'ClinicPro - Gestión Profesional de Salud',
+  title: 'ClinicalPro - Gestión Profesional de Salud',
   description: 'Sistema de gestión integral para profesionales de la salud',
   manifest: '/manifest.json',
   icons: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'ClinicPro',
+    title: 'ClinicalPro',
   },
   themeColor: '#08415C',
   viewport: {

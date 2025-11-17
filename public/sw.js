@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clinicpro-v1';
+const CACHE_NAME = 'clinicalpro-v1';
 const urlsToCache = [
   '/',
   '/dashboard',

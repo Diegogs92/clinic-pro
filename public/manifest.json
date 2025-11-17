@@ -1,6 +1,6 @@
 {
-  "name": "ClinicPro",
-  "short_name": "ClinicPro",
+  "name": "ClinicalPro",
+  "short_name": "ClinicalPro",
   "description": "Sistema de gestión de consultorios médicos",
   "start_url": "/",
   "display": "standalone",

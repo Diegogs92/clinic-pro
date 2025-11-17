@@ -47,7 +47,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-4 shadow-lg">
             <span className="text-4xl font-bold text-primary">C</span>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">ClinicPro</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">ClinicalPro</h1>
           <p className="text-secondary-lighter text-lg">
             Sistema de Gestión para Profesionales de Salud
           </p>
