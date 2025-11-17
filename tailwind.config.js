@@ -9,13 +9,18 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#0F5257',
-          dark: '#0B3142',
+          light: '#94E8B4',
+          DEFAULT: '#72BDA3',
+          dark: '#4E6151',
         },
         secondary: {
-          DEFAULT: '#9C92A3',
-          light: '#C6B9CD',
-          lighter: '#D6D3F0',
+          DEFAULT: '#72BDA3',
+          light: '#94E8B4',
+          lighter: '#94E8B4',
+          dark: '#4E6151',
+        },
+        accent: {
+          DEFAULT: '#3B322C',
         },
       },
     },
