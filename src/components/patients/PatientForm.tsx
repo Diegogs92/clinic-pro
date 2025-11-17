@@ -75,15 +75,33 @@ export default function PatientForm({ patientId }: Props) {
     if (!user) return;
     setLoading(true);
     try {
-      const patientData = {
-        ...values,
+      const patientData: any = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        dni: values.dni,
+        phone: values.phone,
         userId: user.uid,
-        insuranceId: values.insuranceId || undefined,
-        insuranceNumber: values.insuranceNumber || undefined,
-        birthDate: values.birthDate || undefined,
-        address: values.address || undefined,
-        email: values.email || undefined,
       };
+
+      // Solo agregar campos opcionales si tienen valor
+      if (values.email && values.email.trim()) {
+        patientData.email = values.email;
+      }
+      if (values.insuranceId && values.insuranceId.trim()) {
+        patientData.insuranceId = values.insuranceId;
+      }
+      if (values.insuranceNumber && values.insuranceNumber.trim()) {
+        patientData.insuranceNumber = values.insuranceNumber;
+      }
+      if (values.birthDate && values.birthDate.trim()) {
+        patientData.birthDate = values.birthDate;
+      }
+      if (values.address && values.address.trim()) {
+        patientData.address = values.address;
+      }
+      if (values.notes && values.notes.trim()) {
+        patientData.notes = values.notes;
+      }
 
       if (patientId && initialPatient) {
         await updatePatient(patientId, patientData);
@@ -92,8 +110,8 @@ export default function PatientForm({ patientId }: Props) {
       }
       router.push('/patients');
     } catch (e) {
-      console.error(e);
-      alert('Error al guardar paciente');
+      console.error('Error al guardar:', e);
+      alert(`Error al guardar paciente: ${e instanceof Error ? e.message : 'Error desconocido'}`);
     } finally {
       setLoading(false);
     }
