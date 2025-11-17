@@ -11,6 +11,8 @@ import { getAppointmentsByUser } from '@/lib/appointments';
 import { Appointment } from '@/types';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
 import { CalendarDays, PlusCircle } from 'lucide-react';
+import Modal from '@/components/ui/Modal';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -19,6 +21,7 @@ export default function DashboardPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     if (!user) return;
@@ -119,17 +122,18 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {showForm && (
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" role="dialog" aria-modal>
-              <div className="card w-full max-w-lg relative animate-in fade-in zoom-in">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-primary-dark dark:text-white">Nuevo Turno</h3>
-                  <button onClick={()=>setShowForm(false)} className="text-secondary hover:text-primary dark:hover:text-white">✕</button>
-                </div>
-                <AppointmentForm onCreated={() => { setShowForm(false); /* naive refresh */ location.reload(); }} onCancel={()=>setShowForm(false)} />
-              </div>
-            </div>
-          )}
+          <Modal open={showForm} onClose={()=>setShowForm(false)} title="Nuevo Turno">
+            <AppointmentForm onCreated={(appt?: Appointment) => { 
+              setShowForm(false);
+              if (appt) {
+                setAppointments(prev => [appt, ...prev].sort((a,b)=>a.date.localeCompare(b.date)));
+              } else {
+                // fallback: re-fetch
+                if (user) { getAppointmentsByUser(user.uid).then(setAppointments); }
+              }
+              toast.success('Turno creado correctamente');
+            }} onCancel={()=>setShowForm(false)} />
+          </Modal>
         </div>
       </DashboardLayout>
     </ProtectedRoute>

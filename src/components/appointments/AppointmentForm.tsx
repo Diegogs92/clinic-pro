@@ -21,7 +21,7 @@ const schema = z.object({
 
 export type AppointmentFormValues = z.infer<typeof schema>;
 
-export default function AppointmentForm({ onCreated, onCancel }: { onCreated?: () => void; onCancel?: () => void }) {
+export default function AppointmentForm({ onCreated, onCancel }: { onCreated?: (appt?: any) => void; onCancel?: () => void }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -51,7 +51,7 @@ export default function AppointmentForm({ onCreated, onCancel }: { onCreated?: (
 
       const selected = patients.find(p => p.id === (values.patientId as unknown as string));
 
-      await createAppointment({
+      const payload = {
         patientId: values.patientId as unknown as string,
         patientName: selected ? `${selected.lastName} ${selected.firstName}` : (values.patientName || ''),
         date: startDate.toISOString(),
@@ -64,10 +64,13 @@ export default function AppointmentForm({ onCreated, onCancel }: { onCreated?: (
         userId: user.uid,
         createdAt: '',
         updatedAt: '',
-      } as any);
+      } as any;
+
+      const id = await createAppointment(payload);
+      const created = { ...payload, id };
 
       reset();
-      onCreated?.();
+      onCreated?.(created);
     } catch (e) {
       console.error(e);
       alert('Error al crear turno');

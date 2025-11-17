@@ -7,6 +7,7 @@ import { getPatientsByUser, deletePatient } from '@/lib/patients';
 import { Patient } from '@/types';
 import { Trash2, Edit, Search, Loader2 } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
+import { useConfirm } from '@/contexts/ConfirmContext';
 
 export default function PatientList() {
   const { user } = useAuth();
@@ -14,6 +15,7 @@ export default function PatientList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const toast = useToast();
+  const confirm = useConfirm();
 
   useEffect(() => {
     if (!user) return;
@@ -50,7 +52,14 @@ export default function PatientList() {
   );
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar paciente?')) return;
+    const ok = await confirm({
+      title: 'Eliminar paciente',
+      description: 'Esta acción es irreversible. ¿Deseas continuar?',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      tone: 'danger',
+    });
+    if (!ok) return;
     try {
       await deletePatient(id);
       setPatients(prev => prev.filter(p => p.id !== id));

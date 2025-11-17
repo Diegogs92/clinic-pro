@@ -4,6 +4,7 @@ import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import { ToastProvider } from '@/contexts/ToastContext';
+import { ConfirmProvider } from '@/contexts/ConfirmContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -54,7 +55,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <AuthProvider>
             <ToastProvider>
-              {children}
+              <ConfirmProvider>
+                {children}
+              </ConfirmProvider>
             </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
