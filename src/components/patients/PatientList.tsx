@@ -44,14 +44,14 @@ export default function PatientList() {
   };
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-primary"><Loader2 className="w-5 h-5 animate-spin" /> Cargando pacientes...</div>;
+    return <div className="flex items-center gap-2 text-primary dark:text-white"><Loader2 className="w-5 h-5 animate-spin" /> Cargando pacientes...</div>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div className="relative md:max-w-xs flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary dark:text-gray-400" />
           <input
             placeholder="Buscar por nombre o DNI..."
             className="input-field pl-10 w-full"
@@ -62,9 +62,9 @@ export default function PatientList() {
         <Link href="/patients/new" className="btn-primary inline-block text-center">+ Nuevo Paciente</Link>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full border border-secondary-lighter bg-white rounded-lg">
-          <thead className="bg-secondary-lighter">
-            <tr className="text-left text-sm text-primary-dark">
+        <table className="min-w-full border border-secondary-lighter dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg">
+          <thead className="bg-secondary-lighter dark:bg-gray-700">
+            <tr className="text-left text-sm text-primary-dark dark:text-white">
               <th className="p-2">Apellido</th>
               <th className="p-2">Nombre</th>
               <th className="p-2">DNI</th>
@@ -73,23 +73,23 @@ export default function PatientList() {
               <th className="p-2">Acciones</th>
             </tr>
           </thead>
-          <tbody className="text-sm">
+          <tbody className="text-sm text-gray-900 dark:text-gray-100">
             {filtered.map(p => (
-              <tr key={p.id} className="border-t border-secondary-lighter hover:bg-secondary-lighter/40">
+              <tr key={p.id} className="border-t border-secondary-lighter dark:border-gray-700 hover:bg-secondary-lighter/40 dark:hover:bg-gray-700">
                 <td className="p-2 font-medium">{p.lastName}</td>
                 <td className="p-2">{p.firstName}</td>
                 <td className="p-2">{p.dni}</td>
                 <td className="p-2">{p.phone}</td>
                 <td className="p-2">{p.email}</td>
                 <td className="p-2 flex gap-2">
-                  <Link href={`/patients/${p.id}`} className="text-primary-dark hover:underline flex items-center gap-1"><Edit className="w-4 h-4" /> Editar</Link>
-                  <button onClick={() => handleDelete(p.id)} className="text-red-600 hover:underline flex items-center gap-1"><Trash2 className="w-4 h-4" /> Borrar</button>
+                  <Link href={`/patients/${p.id}`} className="text-primary-dark dark:text-blue-400 hover:underline flex items-center gap-1"><Edit className="w-4 h-4" /> Editar</Link>
+                  <button onClick={() => handleDelete(p.id)} className="text-red-600 dark:text-red-400 hover:underline flex items-center gap-1"><Trash2 className="w-4 h-4" /> Borrar</button>
                 </td>
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-4 text-center text-secondary">Sin resultados</td>
+                <td colSpan={6} className="p-4 text-center text-secondary dark:text-gray-400">Sin resultados</td>
               </tr>
             )}
           </tbody>

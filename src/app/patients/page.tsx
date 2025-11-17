@@ -10,7 +10,7 @@ export default function PatientsPage() {
     <ProtectedRoute>
       <DashboardLayout>
         <div className="space-y-6">
-          <h1 className="text-2xl font-bold text-primary-dark">Pacientes</h1>
+          <h1 className="text-2xl font-bold text-primary-dark dark:text-white">Pacientes</h1>
           <PatientList />
         </div>
       </DashboardLayout>

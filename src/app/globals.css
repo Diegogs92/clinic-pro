@@ -30,14 +30,22 @@ body {
   }
 
   .btn-secondary {
-    @apply bg-secondary hover:bg-secondary-light text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-secondary hover:bg-secondary-light text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 dark:bg-gray-700 dark:hover:bg-gray-600;
   }
 
   .card {
-    @apply bg-white rounded-lg shadow-md p-6 border border-secondary-lighter;
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-secondary-lighter dark:border-gray-700;
   }
 
   .input-field {
-    @apply w-full px-4 py-2 border border-secondary-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all;
+    @apply w-full px-4 py-2 border border-secondary-light dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all;
+  }
+  
+  .text-primary-dark {
+    @apply dark:text-white;
+  }
+  
+  .text-secondary {
+    @apply dark:text-gray-400;
   }
 }
