@@ -2,11 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useSession } from 'next-auth/react';
-import {
-  createCalendarEvent,
-  updateCalendarEvent,
-  deleteCalendarEvent,
-} from '@/lib/googleCalendar';
 import { Appointment } from '@/types';
 
 interface CalendarSyncContextType {
@@ -60,27 +55,26 @@ export function CalendarSyncProvider({ children }: Props) {
     action: 'create' | 'update' | 'delete',
     eventId?: string
   ): Promise<string | null> => {
-    if (!syncEnabled || !session?.accessToken) {
+      if (!syncEnabled || !isConnected) {
       return null;
     }
 
     try {
-      switch (action) {
-        case 'create':
-          return await createCalendarEvent(session.accessToken, appointment);
-        case 'update':
-          if (eventId) {
-            await updateCalendarEvent(session.accessToken, eventId, appointment);
-          }
-          return eventId || null;
-        case 'delete':
-          if (eventId) {
-            await deleteCalendarEvent(session.accessToken, eventId);
-          }
-          return null;
-        default:
-          return null;
+        const response = await fetch('/api/calendar/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            appointment: { ...appointment, googleCalendarEventId: eventId },
+            action,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to sync');
       }
+
+        const data = await response.json();
+        return data.eventId;
     } catch (error) {
       console.error('Error syncing appointment:', error);
       return null;
