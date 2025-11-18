@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { createPatient } from '@/lib/patients';
 import { useState } from 'react';
-import { Patient } from '@/types';
+
 
 const patientSchema = z.object({
   firstName: z.string().min(1, 'Nombre requerido'),
@@ -25,7 +25,7 @@ const patientSchema = z.object({
 type PatientFormValues = z.infer<typeof patientSchema>;
 
 interface Props {
-  onSuccess: (patient: Patient) => void;
+  onSuccess: (created: { id: string }) => void;
   onCancel: () => void;
 }
 
@@ -62,8 +62,8 @@ export default function QuickPatientForm({ onSuccess, onCancel }: Props) {
       if (values.address && values.address.trim()) patientData.address = values.address;
       if (values.notes && values.notes.trim()) patientData.notes = values.notes;
 
-      const newPatient = await createPatient(patientData);
-      onSuccess(newPatient);
+      const newId = await createPatient(patientData);
+      onSuccess({ id: newId });
     } catch (e) {
       console.error('Error al crear paciente:', e);
       alert(`Error al crear paciente: ${e instanceof Error ? e.message : 'Error desconocido'}`);
