@@ -26,7 +26,7 @@ type HistoryFormValues = z.infer<typeof historySchema>;
 export default function PatientHistoryPage() {
   const params = useParams();
   const router = useRouter();
-  const patientId = params.id as string;
+    const patientId = params?.id as string;
   const [patient, setPatient] = useState<Patient | null>(null);
   const [history, setHistory] = useState<MedicalHistory[]>([]);
   const [loading, setLoading] = useState(true);
