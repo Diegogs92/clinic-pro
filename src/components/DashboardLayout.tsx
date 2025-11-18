@@ -46,7 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className={`
                       flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
                       ${active
-                        ? 'bg-white dark:bg-gray-700 text-primary shadow-md scale-105'
+                        ? 'bg-white dark:bg-gray-700 text-primary dark:text-white shadow-md scale-105'
                         : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-700/50'
                       }
                     `}
