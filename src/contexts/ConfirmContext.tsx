@@ -43,12 +43,26 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     <ConfirmContext.Provider value={{ confirm }}>
       {children}
       <Modal open={!!pending} onClose={() => close(false)} title={pending?.options.title || 'Confirmar acción'}>
-        <p className="text-sm text-secondary dark:text-gray-300 mb-4">{pending?.options.description || '¿Deseas continuar?'}</p>
-        <div className="flex items-center justify-end gap-2">
-          <button className="btn-secondary" onClick={() => close(false)}>
+        <p className="text-base text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+          {pending?.options.description || '¿Deseas continuar?'}
+        </p>
+        <div className="flex items-center justify-end gap-3">
+          <button
+            className="px-4 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-500"
+            onClick={() => close(false)}
+          >
             {pending?.options.cancelText || 'Cancelar'}
           </button>
-          <button className={`text-white font-semibold py-2 px-4 rounded-lg transition-colors ${toneClass(pending?.options.tone)}`} onClick={() => close(true)}>
+          <button
+            className={`px-4 py-2.5 rounded-lg font-medium text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              pending?.options.tone === 'danger'
+                ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                : pending?.options.tone === 'success'
+                ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                : 'bg-primary hover:bg-primary-dark focus:ring-primary'
+            }`}
+            onClick={() => close(true)}
+          >
             {pending?.options.confirmText || 'Confirmar'}
           </button>
         </div>

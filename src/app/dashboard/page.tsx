@@ -236,17 +236,17 @@ export default function DashboardPage() {
                               </span>
                             </td>
                             <td className="p-2 text-right">
-                              <div className="flex items-center justify-end gap-2">
+                              <div className="flex items-center justify-end gap-1">
                                 <button
                                   onClick={() => handleEdit(a)}
-                                  className="text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-white transition-all hover:scale-110"
+                                  className="icon-btn-primary"
                                   aria-label="Editar turno"
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => handleDelete(a)}
-                                  className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-all hover:scale-110"
+                                  className="icon-btn-danger"
                                   aria-label="Eliminar turno"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -303,14 +303,14 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-2 pt-3 border-t border-secondary-lighter dark:border-gray-700">
                           <button
                             onClick={() => handleEdit(a)}
-                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-all"
+                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                           >
                             <Edit2 className="w-4 h-4" />
                             Editar
                           </button>
                           <button
                             onClick={() => handleDelete(a)}
-                            className="flex items-center justify-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
+                            className="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-red-300"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
