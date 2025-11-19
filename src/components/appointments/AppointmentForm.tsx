@@ -103,6 +103,7 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
 
         // Sync with Google Calendar
         if (syncEnabled) {
+          console.log('[AppointmentForm] Syncing with Google Calendar...');
           const eventId = await syncAppointment(created, 'create');
           if (eventId) {
             await updateAppointment(id, { googleCalendarEventId: eventId });
@@ -110,7 +111,9 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
           }
         }
 
-        await refreshAppointments();
+        console.log('[AppointmentForm] Calling refreshAppointments...');
+        const updatedList = await refreshAppointments();
+        console.log('[AppointmentForm] Appointments after refresh:', updatedList.length);
         console.log('[AppointmentForm] Calling onCreated with:', created);
         reset();
         onCreated?.(created);

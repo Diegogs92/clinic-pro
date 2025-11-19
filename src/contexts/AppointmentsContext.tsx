@@ -20,14 +20,17 @@ export const AppointmentsProvider = ({ children }: { children: React.ReactNode }
 
   const refreshAppointments = useCallback(async () => {
     if (!user) {
+      console.log('[AppointmentsContext] No user, clearing appointments');
       setAppointments([]);
       setLoading(false);
       return [];
     }
 
+    console.log('[AppointmentsContext] Refreshing appointments for user:', user.uid);
     setLoading(true);
     try {
       const list = await getAppointmentsByUser(user.uid);
+      console.log('[AppointmentsContext] Fetched appointments:', list.length);
       setAppointments(list);
       return list;
     } catch (error) {
