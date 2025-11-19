@@ -10,7 +10,6 @@ import NextAuthProvider from '@/components/NextAuthProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { PatientsProvider } from '@/contexts/PatientsContext';
 import { AppointmentsProvider } from '@/contexts/AppointmentsContext';
-import { PatientsProvider } from '@/contexts/PatientsContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
