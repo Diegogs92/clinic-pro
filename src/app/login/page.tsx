@@ -3,14 +3,12 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
 import { LogIn } from 'lucide-react';
 import Image from 'next/image';
 import ECGLoader from '@/components/ui/ECGLoader';
 
 export default function LoginPage() {
-  const { user, loading: authLoading } = useAuth();
-  const { data: session } = useSession();
+  const { user, loading: authLoading, signInWithGoogle, error } = useAuth();
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const router = useRouter();
@@ -26,13 +24,8 @@ export default function LoginPage() {
     setLoading(true);
     setLocalError(null);
     try {
-      const result = await signIn('google', { 
-        callbackUrl: '/dashboard',
-        redirect: true
-      });
-      if (result?.error) {
-        setLocalError('Error al iniciar sesión con Google');
-      }
+      await signInWithGoogle();
+      // El redirect se maneja en el useEffect
     } catch (err) {
       setLocalError('Error al iniciar sesión con Google');
     } finally {
@@ -72,9 +65,9 @@ export default function LoginPage() {
             Inicia sesión con tu cuenta de Google para acceder al sistema
           </p>
 
-          {localError && (
+          {(error || localError) && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-              {localError}
+              {error || localError}
             </div>
           )}
 
