@@ -1,10 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
+import {
   User,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -61,6 +63,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Manejar el resultado del redirect de Google
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          logger.log('[AuthContext] Redirect result:', result.user?.email);
+        }
+      } catch (error: any) {
+        logger.error('[AuthContext] Error en redirect:', error);
+        if (error.code === 'auth/unauthorized-domain') {
+          setError('Dominio no autorizado. Verifica la configuración en Firebase Console.');
+        } else if (error.code === 'auth/operation-not-allowed') {
+          setError('Autenticación con Google no habilitada. Verifica Firebase Console.');
+        } else {
+          setError(error.message || 'Error al iniciar sesión');
+        }
+      }
+    };
+
+    handleRedirectResult();
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       logger.log('[AuthContext] onAuthStateChanged:', user?.email, user?.uid);
       setUser(user);
@@ -116,9 +139,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       provider.setCustomParameters({
         prompt: 'select_account'
       });
-      await signInWithPopup(auth, provider);
+
+      // Usar redirect en producción, popup en desarrollo
+      const isProduction = typeof window !== 'undefined' &&
+        window.location.hostname !== 'localhost' &&
+        !window.location.hostname.includes('127.0.0.1');
+
+      if (isProduction) {
+        logger.log('[AuthContext] Usando signInWithRedirect para producción');
+        await signInWithRedirect(auth, provider);
+      } else {
+        logger.log('[AuthContext] Usando signInWithPopup para desarrollo');
+        await signInWithPopup(auth, provider);
+      }
     } catch (e: any) {
-      setError(e.message || 'Error al iniciar sesión con Google');
+      logger.error('[AuthContext] Error en signInWithGoogle:', e);
+      if (e.code === 'auth/unauthorized-domain') {
+        setError('Dominio no autorizado en Firebase. Contacta al administrador.');
+      } else if (e.code === 'auth/popup-blocked') {
+        setError('Popup bloqueado. Permite popups para este sitio.');
+      } else {
+        setError(e.message || 'Error al iniciar sesión con Google');
+      }
+      throw e;
     }
   };
 
