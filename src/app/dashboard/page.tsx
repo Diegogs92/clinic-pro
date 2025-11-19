@@ -7,9 +7,10 @@ import StatsOverview from '@/components/dashboard/StatsOverview';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getAppointmentsByUser, updateAppointment, deleteAppointment } from '@/lib/appointments';
-import { getPatientsByUser } from '@/lib/patients';
-import { Appointment, Patient } from '@/types';
+import { updateAppointment, deleteAppointment } from '@/lib/appointments';
+import { Appointment } from '@/types';
+import { usePatients } from '@/contexts/PatientsContext';
+import { useAppointments } from '@/contexts/AppointmentsContext';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
 import { CalendarDays, PlusCircle, Edit2, Trash2, Filter } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
@@ -20,11 +21,10 @@ import ECGLoader from '@/components/ui/ECGLoader';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { patients } = usePatients();
+  const { appointments, loading: appointmentsLoading, refreshAppointments } = useAppointments();
   const [view, setView] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [baseDate, setBaseDate] = useState<string>(() => new Date().toISOString().slice(0,10));
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
 
@@ -32,26 +32,10 @@ export default function DashboardPage() {
   const [filterPatient, setFilterPatient] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [filterType, setFilterType] = useState<string>('');
+  const [showFilters, setShowFilters] = useState(false);
 
   const toast = useToast();
   const confirm = useConfirm();
-
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      setLoading(true);
-      try {
-        const [appointmentsData, patientsData] = await Promise.all([
-          getAppointmentsByUser(user.uid),
-          getPatientsByUser(user.uid)
-        ]);
-        setAppointments(appointmentsData);
-        setPatients(patientsData);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [user]);
 
   const filtered = useMemo(() => {
     const start = new Date(baseDate);
@@ -107,20 +91,10 @@ export default function DashboardPage() {
 
     try {
       await deleteAppointment(appt.id);
-      setAppointments(prev => prev.filter(a => a.id !== appt.id));
+      await refreshAppointments();
       toast.success('Turno eliminado correctamente');
     } catch (error) {
       toast.error('Error al eliminar el turno');
-    }
-  };
-
-  const refreshAppointments = async () => {
-    if (!user) return;
-    try {
-      const data = await getAppointmentsByUser(user.uid);
-      setAppointments(data);
-    } catch (error) {
-      toast.error('Error al cargar turnos');
     }
   };
 
@@ -147,59 +121,78 @@ export default function DashboardPage() {
               <input type="date" value={baseDate} onChange={e=>setBaseDate(e.target.value)} className="input-field md:w-56" />
             </div>
 
-            {/* Filtros */}
-            <div className="flex flex-col md:flex-row gap-3 mb-4 p-4 bg-secondary-lighter/30 dark:bg-gray-700/30 rounded-lg">
-              <div className="flex items-center gap-2 text-sm font-medium text-primary-dark dark:text-white">
-                <Filter className="w-4 h-4" />
-                Filtros:
-              </div>
-              <select
-                value={filterPatient}
-                onChange={e => setFilterPatient(e.target.value)}
-                className="input-field flex-1"
+            {/* Filtros - Botón toggle en móvil */}
+            <div className="mb-4">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="md:hidden w-full flex items-center justify-between px-4 py-3 bg-secondary-lighter/30 dark:bg-gray-700/30 rounded-lg text-sm font-medium text-primary-dark dark:text-white mb-2"
               >
-                <option value="">Todos los pacientes</option>
-                {patients.map(p => (
-                  <option key={p.id} value={p.id}>{`${p.lastName} ${p.firstName}`}</option>
-                ))}
-              </select>
-              <select
-                value={filterStatus}
-                onChange={e => setFilterStatus(e.target.value)}
-                className="input-field flex-1"
-              >
-                <option value="">Todos los estados</option>
-                <option value="scheduled">Programado</option>
-                <option value="confirmed">Confirmado</option>
-                <option value="completed">Completado</option>
-                <option value="cancelled">Cancelado</option>
-                <option value="no-show">No asistió</option>
-              </select>
-              <select
-                value={filterType}
-                onChange={e => setFilterType(e.target.value)}
-                className="input-field flex-1"
-              >
-                <option value="">Todos los tipos</option>
-                {uniqueTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-              {(filterPatient || filterStatus || filterType) && (
-                <button
-                  onClick={() => {
-                    setFilterPatient('');
-                    setFilterStatus('');
-                    setFilterType('');
-                  }}
-                  className="px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all whitespace-nowrap"
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4" />
+                  <span>Filtros</span>
+                  {(filterPatient || filterStatus || filterType) && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-primary rounded-full">
+                      !
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs">{showFilters ? '▲' : '▼'}</span>
+              </button>
+
+              {/* Filtros desplegables */}
+              <div className={`${showFilters ? 'block' : 'hidden'} md:flex flex-col md:flex-row gap-3 p-4 bg-secondary-lighter/30 dark:bg-gray-700/30 rounded-lg`}>
+                <div className="hidden md:flex items-center gap-2 text-sm font-medium text-primary-dark dark:text-white">
+                  <Filter className="w-4 h-4" />
+                  Filtros:
+                </div>
+                <select
+                  value={filterPatient}
+                  onChange={e => setFilterPatient(e.target.value)}
+                  className="input-field flex-1"
                 >
-                  Limpiar
-                </button>
-              )}
+                  <option value="">Todos los pacientes</option>
+                  {patients.map(p => (
+                    <option key={p.id} value={p.id}>{`${p.lastName} ${p.firstName}`}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterStatus}
+                  onChange={e => setFilterStatus(e.target.value)}
+                  className="input-field flex-1"
+                >
+                  <option value="">Todos los estados</option>
+                  <option value="scheduled">Programado</option>
+                  <option value="confirmed">Confirmado</option>
+                  <option value="completed">Completado</option>
+                  <option value="cancelled">Cancelado</option>
+                  <option value="no-show">No asistió</option>
+                </select>
+                <select
+                  value={filterType}
+                  onChange={e => setFilterType(e.target.value)}
+                  className="input-field flex-1"
+                >
+                  <option value="">Todos los tipos</option>
+                  {uniqueTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+                {(filterPatient || filterStatus || filterType) && (
+                  <button
+                    onClick={() => {
+                      setFilterPatient('');
+                      setFilterStatus('');
+                      setFilterType('');
+                    }}
+                    className="px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all whitespace-nowrap"
+                  >
+                    Limpiar
+                  </button>
+                )}
+              </div>
             </div>
 
-            {loading ? (
+            {appointmentsLoading ? (
               <div className="flex flex-col items-center justify-center py-12 text-primary dark:text-white">
                 <ECGLoader />
                 <p className="mt-4 text-sm">Cargando turnos...</p>
@@ -207,63 +200,126 @@ export default function DashboardPage() {
             ) : filtered.length === 0 ? (
               <p className="text-secondary dark:text-gray-400">No hay turnos en el período seleccionado.</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full border border-secondary-lighter dark:border-gray-700 bg-white dark:bg-[#18181b] rounded-lg">
-                  <thead className="bg-secondary-lighter dark:bg-[#27272a]">
-                    <tr className="text-left text-sm text-primary-dark dark:text-white">
-                      <th className="p-2">Fecha</th>
-                      <th className="p-2">Hora</th>
-                      <th className="p-2">Paciente</th>
-                      <th className="p-2">Tipo</th>
-                      <th className="p-2">Estado</th>
-                      <th className="p-2 text-right">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm text-gray-900 dark:text-gray-100">
-                    {filtered.map(a => {
-                      const d = new Date(a.date);
-                      const fecha = d.toLocaleDateString();
-                      return (
-                        <tr key={a.id} className="border-t border-secondary-lighter dark:border-gray-700 hover:bg-secondary-lighter/40 dark:hover:bg-[#27272a] transition-colors">
-                          <td className="p-2 font-medium">{fecha}</td>
-                          <td className="p-2">{a.startTime} - {a.endTime}</td>
-                          <td className="p-2">{a.patientName}</td>
-                          <td className="p-2">{a.type}</td>
-                          <td className="p-2">
-                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                              a.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                              a.status === 'completed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                              a.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                              a.status === 'no-show' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
-                              'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                            }`}>
-                              {translateAppointmentStatus(a.status)}
-                            </span>
-                          </td>
-                          <td className="p-2 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <button
-                                onClick={() => handleEdit(a)}
-                                className="text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-white transition-all hover:scale-110"
-                                aria-label="Editar turno"
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(a)}
-                                className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-all hover:scale-110"
-                                aria-label="Eliminar turno"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {/* Vista Desktop: Tabla */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full border border-secondary-lighter dark:border-gray-700 bg-white dark:bg-[#18181b] rounded-lg">
+                    <thead className="bg-secondary-lighter dark:bg-[#27272a]">
+                      <tr className="text-left text-sm text-primary-dark dark:text-white">
+                        <th className="p-2">Fecha</th>
+                        <th className="p-2">Hora</th>
+                        <th className="p-2">Paciente</th>
+                        <th className="p-2">Tipo</th>
+                        <th className="p-2">Estado</th>
+                        <th className="p-2 text-right">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-sm text-gray-900 dark:text-gray-100">
+                      {filtered.map(a => {
+                        const d = new Date(a.date);
+                        const fecha = d.toLocaleDateString();
+                        return (
+                          <tr key={a.id} className="border-t border-secondary-lighter dark:border-gray-700 hover:bg-secondary-lighter/40 dark:hover:bg-[#27272a] transition-colors">
+                            <td className="p-2 font-medium">{fecha}</td>
+                            <td className="p-2">{a.startTime} - {a.endTime}</td>
+                            <td className="p-2">{a.patientName}</td>
+                            <td className="p-2">{a.type}</td>
+                            <td className="p-2">
+                              <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
+                                a.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                a.status === 'completed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                                a.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                                a.status === 'no-show' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
+                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                              }`}>
+                                {translateAppointmentStatus(a.status)}
+                              </span>
+                            </td>
+                            <td className="p-2 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => handleEdit(a)}
+                                  className="text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-white transition-all hover:scale-110"
+                                  aria-label="Editar turno"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(a)}
+                                  className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-all hover:scale-110"
+                                  aria-label="Eliminar turno"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Vista Mobile: Cards */}
+                <div className="md:hidden space-y-3">
+                  {filtered.map(a => {
+                    const d = new Date(a.date);
+                    const fecha = d.toLocaleDateString();
+                    return (
+                      <div
+                        key={a.id}
+                        className="bg-white dark:bg-[#18181b] border border-secondary-lighter dark:border-gray-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-all"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-primary-dark dark:text-white text-base">
+                              {a.patientName}
+                            </h3>
+                            <p className="text-sm text-secondary dark:text-gray-400 mt-1">
+                              {a.type}
+                            </p>
+                          </div>
+                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
+                            a.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                            a.status === 'completed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                            a.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                            a.status === 'no-show' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
+                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          }`}>
+                            {translateAppointmentStatus(a.status)}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300 mb-3">
+                          <div className="flex items-center gap-1">
+                            <CalendarDays className="w-4 h-4" />
+                            <span>{fecha}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium">{a.startTime} - {a.endTime}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-3 border-t border-secondary-lighter dark:border-gray-700">
+                          <button
+                            onClick={() => handleEdit(a)}
+                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-all"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(a)}
+                            className="flex items-center justify-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
 
@@ -271,9 +327,9 @@ export default function DashboardPage() {
             <AppointmentForm
               initialData={editingAppointment || undefined}
               onCreated={(appt?: Appointment) => {
+                console.log('[Dashboard] onCreated callback received:', appt);
                 setShowForm(false);
                 setEditingAppointment(null);
-                refreshAppointments();
                 toast.success(editingAppointment ? 'Turno actualizado correctamente' : 'Turno creado correctamente');
               }}
               onCancel={()=>{setShowForm(false); setEditingAppointment(null);}}

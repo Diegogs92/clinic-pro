@@ -4,29 +4,16 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLayout from '@/components/DashboardLayout';
 import CalendarView from '@/components/agenda/Calendar';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { getAppointmentsByUser } from '@/lib/appointments';
-import { Appointment } from '@/types';
 import { downloadCalendarIcs } from '@/lib/calendarSync';
 import { useToast } from '@/contexts/ToastContext';
+import { useAppointments } from '@/contexts/AppointmentsContext';
+import ECGLoader from '@/components/ui/ECGLoader';
 export const dynamic = 'force-dynamic';
 
 export default function AgendaPage() {
-  const { user } = useAuth();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const { appointments, loading: appointmentsLoading } = useAppointments();
   const toast = useToast();
-
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      try {
-        const data = await getAppointmentsByUser(user.uid);
-        setAppointments(data);
-      } catch (e) { console.error(e); }
-    })();
-  }, [user]);
 
   const handleCalendarSync = () => {
     if (!appointments.length) {
@@ -62,7 +49,14 @@ export default function AgendaPage() {
               </button>
             </div>
           </div>
-          <CalendarView appointments={appointments} />
+          {appointmentsLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 text-primary dark:text-white">
+              <ECGLoader />
+              <p className="mt-4 text-sm">Cargando agenda...</p>
+            </div>
+          ) : (
+            <CalendarView appointments={appointments} />
+          )}
         </div>
       </DashboardLayout>
     </ProtectedRoute>

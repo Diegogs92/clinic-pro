@@ -8,6 +8,9 @@ import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { CalendarSyncProvider } from '@/contexts/CalendarSyncContext';
 import NextAuthProvider from '@/components/NextAuthProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { PatientsProvider } from '@/contexts/PatientsContext';
+import { AppointmentsProvider } from '@/contexts/AppointmentsContext';
+import { PatientsProvider } from '@/contexts/PatientsContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -73,19 +76,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
-          <NextAuthProvider>
-            <ThemeProvider>
-              <AuthProvider>
-                <CalendarSyncProvider>
-                  <ToastProvider>
-                    <ConfirmProvider>
-                      {children}
-                    </ConfirmProvider>
-                  </ToastProvider>
-                </CalendarSyncProvider>
-              </AuthProvider>
-            </ThemeProvider>
-          </NextAuthProvider>
+        <NextAuthProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <PatientsProvider>
+                <AppointmentsProvider>
+                  <CalendarSyncProvider>
+                    <ToastProvider>
+                      <ConfirmProvider>
+                        {children}
+                      </ConfirmProvider>
+                    </ToastProvider>
+                  </CalendarSyncProvider>
+                </AppointmentsProvider>
+              </PatientsProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </NextAuthProvider>
         </ErrorBoundary>
       </body>
     </html>

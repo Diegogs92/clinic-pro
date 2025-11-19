@@ -5,14 +5,15 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { createAppointment, updateAppointment } from '@/lib/appointments';
-import { useEffect, useState } from 'react';
-import { getPatientsByUser } from '@/lib/patients';
-import { Patient, Appointment } from '@/types';
+import { useState } from 'react';
+import { Appointment } from '@/types';
 import { useCalendarSync } from '@/contexts/CalendarSyncContext';
 import { useToast } from '@/contexts/ToastContext';
 import Modal from '@/components/ui/Modal';
 import QuickPatientForm from '@/components/patients/QuickPatientForm';
 import { UserPlus } from 'lucide-react';
+import { usePatients } from '@/contexts/PatientsContext';
+import { useAppointments } from '@/contexts/AppointmentsContext';
 
 const schema = z.object({
   patientId: z.string().min(1, 'Selecciona un paciente'),
@@ -35,7 +36,8 @@ interface Props {
 export default function AppointmentForm({ initialData, onCreated, onCancel }: Props) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [patients, setPatients] = useState<Patient[]>([]);
+  const { patients, refreshPatients } = usePatients();
+  const { refreshAppointments } = useAppointments();
   const [showQuickPatient, setShowQuickPatient] = useState(false);
   const { syncAppointment, syncEnabled, isConnected } = useCalendarSync();
   const toast = useToast();
@@ -50,14 +52,6 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
       notes: initialData?.notes || '',
     },
   });
-
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      const list = await getPatientsByUser(user.uid);
-      setPatients(list);
-    })();
-  }, [user]);
 
   const onSubmit = async (values: AppointmentFormValues) => {
     if (!user) return;
@@ -91,19 +85,22 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
         // Update existing appointment
         await updateAppointment(initialData.id, payload);
         const updated = { ...payload, id: initialData.id };
-        
+
         // Sync with Google Calendar
         if (syncEnabled && initialData.googleCalendarEventId) {
           await syncAppointment(updated, 'update', initialData.googleCalendarEventId);
         }
-        
+
+        await refreshAppointments();
         reset();
         onCreated?.(updated);
       } else {
         // Create new appointment
+        console.log('[AppointmentForm] Creating appointment:', payload);
         const id = await createAppointment(payload);
+        console.log('[AppointmentForm] Appointment created with ID:', id);
         const created = { ...payload, id };
-        
+
         // Sync with Google Calendar
         if (syncEnabled) {
           const eventId = await syncAppointment(created, 'create');
@@ -112,7 +109,9 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
             toast.success('Turno sincronizado con Google Calendar');
           }
         }
-        
+
+        await refreshAppointments();
+        console.log('[AppointmentForm] Calling onCreated with:', created);
         reset();
         onCreated?.(created);
       }
@@ -193,8 +192,7 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
     >
       <QuickPatientForm
         onSuccess={async (newPatient) => {
-          const updatedList = await getPatientsByUser(user!.uid);
-          setPatients(updatedList);
+          await refreshPatients();
           setValue('patientId', newPatient.id);
           setShowQuickPatient(false);
           toast.success('Paciente creado y seleccionado correctamente');

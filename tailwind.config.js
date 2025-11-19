@@ -9,23 +9,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Paleta minimalista simplificada
         primary: {
-          light: '#7494EA',
-          DEFAULT: '#08415C',
-          dark: '#062d40',
-        },
-        secondary: {
-          DEFAULT: '#388697',
-          light: '#70AE6E',
-          lighter: '#F4FAFF',
+          DEFAULT: '#08415C',  // Azul oscuro principal
+          hover: '#062d40',    // Hover state
         },
         accent: {
-          DEFAULT: '#7494EA',
+          DEFAULT: '#388697',  // Turquesa para acentos
         },
-        background: {
-          light: '#F4FAFF',
-          dark: '#08415C',
-        },
+        // Los grays de Tailwind se usan para neutrales
       },
     },
   },

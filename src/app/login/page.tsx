@@ -3,9 +3,35 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogIn } from 'lucide-react';
 import Image from 'next/image';
 import ECGLoader from '@/components/ui/ECGLoader';
+
+const GoogleLogo = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 48 48"
+    className="w-5 h-5"
+    aria-hidden="true"
+  >
+    <path
+      fill="#4285F4"
+      d="M24 9.5c3.3 0 6.1 1.1 8.4 2.9l6.3-6.3C33.6 2.4 29.1 0 24 0 14.8 0 6.9 5.5 3 13.5l7.4 5.7C12.4 11.2 17.7 9.5 24 9.5z"
+    />
+    <path
+      fill="#34A853"
+      d="M46.5 24c0-1.6-.1-2.6-.4-3.8H24v7.2h12.9c-.6 3.6-3.1 6.9-6.9 8.9l7.2 5.6C43.4 38.7 46.5 31.8 46.5 24z"
+    />
+    <path
+      fill="#FBBC05"
+      d="M10.4 28.2A14.9 14.9 0 0 1 9.5 24c0-1.4.3-2.7.9-3.9l-7.4-5.7C.9 15.2 0 19.5 0 24s.9 8.8 3.9 12.3l6.5-6.1z"
+    />
+    <path
+      fill="#EA4335"
+      d="M24 48c5.5 0 10.1-1.8 13.4-4.9l-7.2-5.6c-2 1.4-4.6 2.5-6.9 2.5-6.3 0-11.6-3.7-13.5-9l-6.5 5C6.9 42.5 14.8 48 24 48z"
+    />
+  </svg>
+);
 
 export default function LoginPage() {
   const { user, loading: authLoading, signInWithGoogle, error } = useAuth();
@@ -91,7 +117,7 @@ export default function LoginPage() {
               </span>
             ) : (
               <>
-                <LogIn className="w-5 h-5" />
+                <GoogleLogo />
                 <span>Iniciar sesión con Google</span>
               </>
             )}

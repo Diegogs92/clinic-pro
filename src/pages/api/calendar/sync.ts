@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { google } from 'googleapis';
 import { Appointment } from '@/types';
+import { combineDateAndTime } from '@/lib/dateUtils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -29,6 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     oauth2Client.setCredentials({
       access_token: session.accessToken,
+      refresh_token: session.refreshToken,
     });
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
@@ -42,19 +44,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Convert appointment to calendar event
-    const startTime = new Date(appointment.date as unknown as string);
-    const durationMin = (appointment as any).duration ?? 60;
-    const endTime = new Date(startTime.getTime() + durationMin * 60 * 1000);
+    // Extraer la fecha base (YYYY-MM-DD) del campo date
+    const dateStr = typeof appointment.date === 'string'
+      ? appointment.date.split('T')[0]
+      : appointment.date;
+
+    // Combinar fecha con startTime y endTime usando la utilidad correcta
+    const startDateTime = combineDateAndTime(dateStr, appointment.startTime);
+    const endDateTime = combineDateAndTime(dateStr, appointment.endTime);
 
     const event = {
       summary: `Turno: ${appointment.patientName || 'Sin nombre'}`,
       description: appointment.notes || '',
       start: {
-        dateTime: startTime.toISOString(),
+        dateTime: startDateTime.toISOString(),
         timeZone: 'America/Argentina/Buenos_Aires',
       },
       end: {
-        dateTime: endTime.toISOString(),
+        dateTime: endDateTime.toISOString(),
         timeZone: 'America/Argentina/Buenos_Aires',
       },
     };
@@ -75,8 +82,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     return res.status(200).json({ success: true, eventId: response.data.id });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Calendar sync error:', error);
-    return res.status(500).json({ error: 'Failed to sync with calendar' });
+
+    // Manejo específico de errores de Google Calendar
+    if (error.code === 401 || error.message?.includes('invalid_grant')) {
+      return res.status(401).json({
+        error: 'Token de acceso expirado. Por favor, vuelve a iniciar sesión.'
+      });
+    }
+
+    if (error.code === 403) {
+      return res.status(403).json({
+        error: 'No tienes permisos para acceder a Google Calendar. Verifica los scopes.'
+      });
+    }
+
+    return res.status(500).json({
+      error: 'Error al sincronizar con Google Calendar',
+      details: error.message
+    });
   }
 }

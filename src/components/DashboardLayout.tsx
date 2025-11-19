@@ -6,7 +6,8 @@ import { usePathname } from 'next/navigation';
 import { CalendarDays, Users, Hospital, Wallet, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ThemeToggle from '../components/ThemeToggle';
-import { useState, useRef, useEffect } from 'react';
+import GoogleCalendarToggle from '../components/GoogleCalendarToggle';
+import { useState } from 'react';
 
 const navItems = [
   { href: '/dashboard', label: 'Agenda', icon: CalendarDays },
@@ -19,49 +20,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const { user, userProfile, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0, opacity: 0 });
-  const navRef = useRef<HTMLDivElement>(null);
-
-  // Set initial slider position based on active link
-  useEffect(() => {
-    if (navRef.current) {
-      const activeLink = navRef.current.querySelector('.nav-link-active') as HTMLElement;
-      if (activeLink) {
-        setSliderStyle({
-          left: activeLink.offsetLeft,
-          width: activeLink.offsetWidth,
-          opacity: 1,
-        });
-      }
-    }
-  }, [pathname]);
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const target = e.currentTarget;
-    setSliderStyle({
-      left: target.offsetLeft,
-      width: target.offsetWidth,
-      opacity: 1,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    if (navRef.current) {
-      const activeLink = navRef.current.querySelector('.nav-link-active') as HTMLElement;
-      if (activeLink) {
-        setSliderStyle({
-          left: activeLink.offsetLeft,
-          width: activeLink.offsetWidth,
-          opacity: 1,
-        });
-      }
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 dark:from-[#18181b] dark:via-[#18181b] dark:to-[#0a0a0b]">
-      {/* Top Navigation Bar - iOS Style */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-[#18181b]/90 border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#18181b]">
+      {/* Top Navigation Bar - Simplificado */}
+      <header className="sticky top-0 z-50 bg-white dark:bg-[#27272a] border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -73,36 +36,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             </div>
 
-            {/* Desktop Navigation Pills */}
-            <nav 
-              ref={navRef}
-              className="hidden md:flex items-center relative bg-gray-100/80 dark:bg-[#27272a]/80 backdrop-blur-lg rounded-full p-1.5 shadow-inner"
-              onMouseLeave={handleMouseLeave}
-            >
-              {/* Animated Slider */}
-              <div
-                className="absolute bg-white dark:bg-[#3f3f46] rounded-full shadow-md transition-all duration-300 ease-out"
-                style={{
-                  left: `${sliderStyle.left}px`,
-                  width: `${sliderStyle.width}px`,
-                  height: 'calc(100% - 12px)',
-                  top: '6px',
-                  opacity: sliderStyle.opacity,
-                  pointerEvents: 'none',
-                }}
-              />
+            {/* Desktop Navigation - Simplificado */}
+            <nav className="hidden md:flex items-center gap-1">
               {navItems.map(({ href, label, icon: Icon }) => {
                  const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
                 return (
                   <Link
                     key={href}
                     href={href}
-                    onMouseEnter={handleMouseEnter}
                     className={`
-                      relative z-10 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200
+                      flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200
                       ${active
-                        ? 'nav-link-active text-primary dark:text-white'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                        ? 'bg-primary text-white'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }
                     `}
                   >
@@ -117,6 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center gap-3">
               {/* User Menu - Desktop */}
               <div className="hidden md:flex items-center gap-3">
+                <GoogleCalendarToggle />
                 <ThemeToggle />
                 {user?.photoURL && (
                   <Image
@@ -134,7 +81,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
                 <button
                   onClick={signOut}
-                  className="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-all hover:scale-110"
+                  className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors duration-200"
                   aria-label="Cerrar sesión"
                 >
                   <LogOut className="w-5 h-5" />
@@ -144,7 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-[#27272a] transition-colors"
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
                 aria-label="Toggle menu"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -153,9 +100,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Mobile Menu Dropdown - Simplificado */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200/50 dark:border-gray-700/50 bg-white/95 dark:bg-[#18181b]/95 backdrop-blur-lg">
+          <div className="md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#27272a]">
             <nav className="px-4 py-3 space-y-1">
               {navItems.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
@@ -165,10 +112,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     href={href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all
+                      flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200
                       ${active
-                        ? 'bg-primary text-white shadow-md'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#27272a]'
+                        ? 'bg-primary text-white'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }
                     `}
                   >
@@ -180,7 +127,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </nav>
 
             {/* Mobile User Section */}
-            <div className="px-4 py-3 border-t border-gray-200/50 dark:border-gray-700/50">
+            <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-3 mb-3">
                 {user?.photoURL && (
                   <Image
@@ -197,6 +144,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </div>
                   <div className="text-xs text-secondary dark:text-gray-400">Profesional</div>
                 </div>
+                <GoogleCalendarToggle />
                 <ThemeToggle />
               </div>
               <button

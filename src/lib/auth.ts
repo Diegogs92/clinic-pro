@@ -26,8 +26,9 @@ export const authOptions: AuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      // Adjuntar el access token a la sesión
+      // Adjuntar el access token y refresh token a la sesión
       session.accessToken = token.accessToken as string;
+      session.refreshToken = token.refreshToken as string;
       return session;
     },
   },
