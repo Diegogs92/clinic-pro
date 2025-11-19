@@ -65,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Manejar el resultado del redirect de Google
     const handleRedirectResult = async () => {
+      if (!auth) return;
       try {
         const result = await getRedirectResult(auth);
         if (result) {
