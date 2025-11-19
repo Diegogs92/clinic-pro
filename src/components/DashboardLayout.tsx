@@ -45,19 +45,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     key={href}
                     href={href}
                     className={`
-                      group relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                      group relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium overflow-hidden
+                      transition-colors duration-200
                       ${active
-                        ? 'text-primary dark:text-primary-light bg-primary/5 dark:bg-primary/10'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light hover:bg-primary/5 dark:hover:bg-primary/10'
+                        ? 'text-primary dark:text-primary-light'
+                        : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light'
                       }
                     `}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span className="whitespace-nowrap">{label}</span>
-                    {/* Hover indicator deslizante */}
+                    <Icon className="w-4 h-4 relative z-10" />
+                    <span className="whitespace-nowrap relative z-10">{label}</span>
+
+                    {/* Fondo hover deslizante de izquierda a derecha */}
                     <span className={`
-                      absolute bottom-0 left-0 h-0.5 bg-primary dark:bg-primary-light rounded-full transition-all duration-300 ease-out
-                      ${active ? 'w-full' : 'w-0 group-hover:w-full'}
+                      absolute inset-0 bg-primary/5 dark:bg-primary/10 rounded-lg
+                      transform transition-transform duration-300 ease-out origin-left
+                      ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
+                    `} />
+
+                    {/* Línea inferior deslizante */}
+                    <span className={`
+                      absolute bottom-0 left-0 right-0 h-0.5 bg-primary dark:bg-primary-light
+                      transform transition-transform duration-300 ease-out origin-left
+                      ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
                     `} />
                   </Link>
                 );
