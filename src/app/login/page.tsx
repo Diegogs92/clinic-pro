@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import ECGLoader from '@/components/ui/ECGLoader';
+import { debugFirebaseAuth } from '@/lib/authDebug';
 
 const GoogleLogo = () => (
   <svg
@@ -45,6 +46,14 @@ export default function LoginPage() {
       router.push('/dashboard');
     }
   }, [user, authLoading, router]);
+
+  useEffect(() => {
+    // Solo en desarrollo o si hay parámetros de debug
+    if (typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.search.includes('debug=true'))) {
+      debugFirebaseAuth();
+    }
+  }, []);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);

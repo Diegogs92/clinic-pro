@@ -11,7 +11,8 @@
       "Bash(vercel:*)",
       "Bash(git commit:*)",
       "Bash(\"c:\\Users\\diego\\OneDrive\\Documentos\\clinic-pro\\src\\components\\ThemeToggle.tsx\")",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []
