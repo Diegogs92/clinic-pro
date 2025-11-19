@@ -31,14 +31,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const preferred = getPreferredTheme();
-    if (preferred !== theme) {
-      setTheme(preferred);
-    }
-  }, [theme]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
     document.documentElement.classList.toggle("dark", theme === "dark");
     localStorage.setItem("theme", theme);
     window.__theme = theme;
