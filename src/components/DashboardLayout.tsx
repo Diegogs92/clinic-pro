@@ -67,7 +67,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-elegant-100 dark:hover:bg-navy-light/20 transition-colors duration-200"
+                className="md:hidden p-2 rounded-lg hover:bg-elegant-100 dark:hover:bg-navy-light/20 text-elegant-700 dark:text-white transition-colors duration-200"
                 aria-label="Toggle menu"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

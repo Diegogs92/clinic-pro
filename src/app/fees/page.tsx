@@ -34,10 +34,10 @@ export default function FeesPage() {
             <h1 className="text-2xl font-bold text-primary-dark">Honorarios</h1>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="card"><div className="text-xs text-secondary">Total Ingresos</div><div className="text-2xl font-bold text-primary-dark">${totalRevenue.toLocaleString()}</div></div>
-            <div className="card"><div className="text-xs text-secondary">Pendientes</div><div className="text-2xl font-bold text-red-600">${pendingTotal.toLocaleString()}</div></div>
-            <div className="card"><div className="text-xs text-secondary">Cobros</div><div className="text-2xl font-bold text-primary-dark">{payments.length}</div></div>
-            <div className="card"><div className="text-xs text-secondary">Pendientes Cobro</div><div className="text-2xl font-bold text-primary-dark">{pending.length}</div></div>
+            <div className="card"><div className="text-xs text-secondary dark:text-gray-400">Total Ingresos</div><div className="text-2xl font-bold text-black dark:text-white">${totalRevenue.toLocaleString()}</div></div>
+            <div className="card"><div className="text-xs text-secondary dark:text-gray-400">Pendientes</div><div className="text-2xl font-bold text-black dark:text-white">${pendingTotal.toLocaleString()}</div></div>
+            <div className="card"><div className="text-xs text-secondary dark:text-gray-400">Cobros</div><div className="text-2xl font-bold text-black dark:text-white">{payments.length}</div></div>
+            <div className="card"><div className="text-xs text-secondary dark:text-gray-400">Pendientes Cobro</div><div className="text-2xl font-bold text-black dark:text-white">{pending.length}</div></div>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="card overflow-x-auto">
@@ -52,7 +52,7 @@ export default function FeesPage() {
                     <th className="p-3 font-bold text-navy-darkest dark:text-white">Fecha</th>
                   </tr>
                 </thead>
-                <tbody className="text-gray-900 dark:text-gray-100">
+                <tbody className="text-black dark:text-white">
                   {payments.slice(0,10).map(p => (
                     <tr key={p.id} className="border-t border-elegant-100 dark:border-elegant-800 hover:bg-secondary-lighter/40 dark:hover:bg-[#27272a] transition-colors">
                       <td className="p-2">{p.patientName}</td>
@@ -77,7 +77,7 @@ export default function FeesPage() {
                     <th className="p-3 font-bold text-navy-darkest dark:text-white">Fecha</th>
                   </tr>
                 </thead>
-                <tbody className="text-gray-900 dark:text-gray-100">
+                <tbody className="text-black dark:text-white">
                   {pending.slice(0,10).map(p => (
                     <tr key={p.id} className="border-t border-elegant-100 dark:border-elegant-800 hover:bg-secondary-lighter/40 dark:hover:bg-[#27272a] transition-colors">
                       <td className="p-2">{p.patientName}</td>
