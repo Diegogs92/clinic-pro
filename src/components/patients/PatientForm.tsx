@@ -237,8 +237,8 @@ export default function PatientForm({ patientId, onSuccess }: Props) {
 
       {/* Mostrar campos adicionales si no es particular */}
       {insuranceType && insuranceType !== 'particular' && (
-        <div className="grid grid-cols-2 gap-2">
-          <div>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="col-span-2">
             <label className="block text-xs font-medium text-primary-dark dark:text-white mb-0.5">
               {insuranceType === 'obra-social' ? 'Obra Social' : 'Prepaga'}
             </label>
@@ -265,11 +265,11 @@ export default function PatientForm({ patientId, onSuccess }: Props) {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-primary-dark dark:text-white mb-0.5">Nº de Afiliado</label>
+            <label className="block text-xs font-medium text-primary-dark dark:text-white mb-0.5">Nº Afiliado</label>
             <input
               className="input-field text-sm py-1.5"
               {...register('insuranceNumber')}
-              placeholder="Número de credencial"
+              placeholder="Número"
             />
           </div>
         </div>
