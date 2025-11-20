@@ -36,39 +36,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             </div>
 
-            {/* Desktop Navigation - Con efecto hover deslizante */}
-            <nav className="hidden md:flex items-center gap-1">
+            {/* Desktop Navigation - Con efecto hover deslizante tipo píldora */}
+            <nav className="hidden md:flex items-center bg-gray-100/80 dark:bg-gray-800/50 rounded-full p-1 backdrop-blur-sm">
               {navItems.map(({ href, label, icon: Icon }) => {
                  const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
                 return (
                   <Link
                     key={href}
                     href={href}
-                    className={`
-                      group relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium overflow-hidden
-                      transition-colors duration-200
-                      ${active
-                        ? 'text-primary dark:text-primary-light'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light'
-                      }
-                    `}
+                    className="group relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-200 rounded-full overflow-hidden"
                   >
-                    <Icon className="w-4 h-4 relative z-10" />
-                    <span className="whitespace-nowrap relative z-10">{label}</span>
-
-                    {/* Fondo hover deslizante de izquierda a derecha */}
+                    {/* Fondo deslizante - solo visible en hover o activo */}
                     <span className={`
-                      absolute inset-0 bg-primary/5 dark:bg-primary/10 rounded-lg
+                      absolute inset-0 bg-white dark:bg-gray-700 rounded-full shadow-sm
                       transform transition-transform duration-300 ease-out origin-left
                       ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
                     `} />
 
-                    {/* Línea inferior deslizante */}
-                    <span className={`
-                      absolute bottom-0 left-0 right-0 h-0.5 bg-primary dark:bg-primary-light
-                      transform transition-transform duration-300 ease-out origin-left
-                      ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}
-                    `} />
+                    <Icon className={`w-4 h-4 transition-colors duration-200 relative z-10 ${
+                      active
+                        ? 'text-primary dark:text-primary-light'
+                        : 'text-gray-600 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-primary-light'
+                    }`} />
+                    <span className={`whitespace-nowrap transition-colors duration-200 relative z-10 ${
+                      active
+                        ? 'text-primary dark:text-primary-light font-semibold'
+                        : 'text-gray-700 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary-light'
+                    }`}>{label}</span>
                   </Link>
                 );
               })}
