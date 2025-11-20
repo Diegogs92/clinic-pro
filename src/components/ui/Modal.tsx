@@ -33,18 +33,18 @@ export default function Modal({ open, onClose, title, children, maxWidth = 'max-
     >
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/40 backdrop-blur-md transition-opacity duration-200 ${
+        className={`absolute inset-0 bg-black/50 backdrop-blur-lg transition-opacity duration-200 ${
           open ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={onClose}
       />
 
       {/* Modal Content */}
-      <div className={`relative w-full ${maxWidth} bg-white dark:bg-elegant-900 rounded-xl shadow-2xl p-6 border border-elegant-200 dark:border-elegant-800 transform transition-all duration-200 ${
+      <div className={`relative w-full ${maxWidth} bg-white dark:bg-elegant-900 rounded-2xl shadow-2xl p-5 border border-elegant-200 dark:border-elegant-800 transform transition-all duration-200 ${
         open ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
       }`}>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-elegant-900 dark:text-white">{title}</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-elegant-900 dark:text-white">{title}</h3>
           <button
             onClick={onClose}
             className="icon-btn"

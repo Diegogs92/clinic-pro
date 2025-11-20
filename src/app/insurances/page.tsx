@@ -54,7 +54,7 @@ export default function InsurancesPage() {
               className="btn-primary hover:shadow-lg hover:scale-105 transition-all flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              Nueva
+              Nueva Obra Social
             </button>
           </div>
           <div className="card overflow-x-auto">
