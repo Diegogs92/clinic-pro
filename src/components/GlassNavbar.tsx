@@ -65,6 +65,8 @@ export default function GlassNavbar({ items }: GlassNavbarProps) {
       {items.map(({ href, label, icon: Icon }, index) => {
         const isActive = index === activeIndex;
         const isHovered = index === hoveredIndex;
+        // El texto debe ser blanco si es el activo O si es el hover actual
+        const isHighlighted = (hoveredIndex !== null && isHovered) || (hoveredIndex === null && isActive);
 
         return (
           <Link
@@ -76,8 +78,8 @@ export default function GlassNavbar({ items }: GlassNavbarProps) {
             onMouseEnter={() => setHoveredIndex(index)}
             className={`
               relative z-10 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium
-              transition-all duration-300 ease-out
-              ${isActive || isHovered
+              transition-colors duration-300 ease-out
+              ${isHighlighted
                 ? 'text-white'
                 : 'text-elegant-600 dark:text-elegant-300'
               }

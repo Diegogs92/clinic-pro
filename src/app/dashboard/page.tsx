@@ -18,6 +18,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
 import { translateAppointmentStatus } from '@/lib/translations';
 import ECGLoader from '@/components/ui/ECGLoader';
+import GlassViewSelector from '@/components/GlassViewSelector';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -111,13 +112,16 @@ export default function DashboardPage() {
           <StatsOverview />
           <div className="card">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-              <div className="flex items-center gap-2 bg-secondary-lighter/50 dark:bg-gray-700 rounded-lg p-1 w-fit">
-                {(['day','week','month','year'] as const).map(v => (
-                  <button key={v} onClick={() => setView(v)} className={`px-3 py-1 rounded-md text-sm transition-all hover:bg-white/70 dark:hover:bg-gray-600 hover:shadow-sm ${view===v ? 'bg-white dark:bg-gray-600 font-semibold' : 'text-primary-dark dark:text-gray-300'}`}>{
-                    v==='day'?'Día':v==='week'?'Semana':v==='month'?'Mes':'Año'
-                  }</button>
-                ))}
-              </div>
+              <GlassViewSelector
+                options={[
+                  { value: 'day', label: 'Día' },
+                  { value: 'week', label: 'Semana' },
+                  { value: 'month', label: 'Mes' },
+                  { value: 'year', label: 'Año' }
+                ]}
+                value={view}
+                onChange={(v) => setView(v as 'day' | 'week' | 'month' | 'year')}
+              />
               <input type="date" value={baseDate} onChange={e=>setBaseDate(e.target.value)} className="input-field md:w-56" />
             </div>
 
@@ -204,14 +208,14 @@ export default function DashboardPage() {
                 {/* Vista Desktop: Tabla */}
                 <div className="hidden md:block overflow-x-auto">
                   <table className="min-w-full border border-secondary-lighter dark:border-gray-700 bg-white dark:bg-[#18181b] rounded-lg">
-                    <thead className="bg-secondary-lighter dark:bg-[#27272a]">
-                      <tr className="text-left text-sm text-primary-dark dark:text-white">
-                        <th className="p-2">Fecha</th>
-                        <th className="p-2">Hora</th>
-                        <th className="p-2">Paciente</th>
-                        <th className="p-2">Tipo</th>
-                        <th className="p-2">Estado</th>
-                        <th className="p-2 text-right">Acciones</th>
+                    <thead className="bg-gradient-to-r from-primary/20 to-primary-light/20 dark:bg-gradient-to-r dark:from-primary/30 dark:to-primary-light/30">
+                      <tr className="text-left text-sm">
+                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Fecha</th>
+                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Hora</th>
+                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Paciente</th>
+                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Tipo</th>
+                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Estado</th>
+                        <th className="p-3 text-right font-bold text-navy-darkest dark:text-white">Acciones</th>
                       </tr>
                     </thead>
                     <tbody className="text-sm text-gray-900 dark:text-gray-100">
