@@ -19,162 +19,178 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, userProfile, signOut } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#18181b]">
-      {/* Top Navigation Bar - Simplificado */}
-      <header className="sticky top-0 z-50 bg-white dark:bg-[#27272a] border-b border-gray-200 dark:border-gray-700 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <Image src="/logo.svg" alt="Clinical" width={36} height={36} className="rounded-xl" />
-              <div className="hidden sm:block">
-                <div className="text-primary-dark dark:text-white font-bold text-lg">Clinical</div>
-                <div className="text-xs text-secondary dark:text-gray-400">Gestión Profesional</div>
-              </div>
-            </div>
-
-            {/* Desktop Navigation - Sliding effect like video */}
-            <nav className="hidden md:flex items-center bg-white/60 dark:bg-gray-900/40 rounded-full p-1.5 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg shadow-black/5">
-              {navItems.map(({ href, label, icon: Icon }) => {
-                 const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="group relative flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-full overflow-hidden"
-                  >
-                    {/* Fondo deslizante horizontal de izquierda a derecha */}
-                    <span
-                      className={`
-                        absolute inset-0 bg-white/90 dark:bg-gray-800/80 rounded-full
-                        backdrop-blur-md shadow-md
-                        transition-transform duration-300 ease-out origin-left
-                        ${active ? 'translate-x-0' : '-translate-x-full group-hover:translate-x-0'}
-                      `}
-                    />
-
-                    <Icon className={`w-4 h-4 transition-colors duration-200 relative z-10 ${
-                      active
-                        ? 'text-primary dark:text-primary-light'
-                        : 'text-gray-500 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-primary-light'
-                    }`} />
-                    <span className={`whitespace-nowrap transition-colors duration-200 relative z-10 ${
-                      active
-                        ? 'text-primary dark:text-primary-light font-semibold'
-                        : 'text-gray-600 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-primary-light'
-                    }`}>{label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Right Section */}
-            <div className="flex items-center gap-3">
-              {/* User Menu - Desktop */}
-              <div className="hidden md:flex items-center gap-3">
-                <GoogleCalendarToggle />
-                <ThemeToggle />
-                {user?.photoURL && (
-                  <Image
-                    src={user.photoURL}
-                    alt="avatar"
-                    width={32}
-                    height={32}
-                    className="rounded-full ring-2 ring-primary/20"
-                  />
-                )}
-                <div className="hidden lg:block text-sm">
-                  <div className="font-semibold text-primary-dark dark:text-white">
-                    {userProfile?.displayName || user?.email?.split('@')[0]}
-                  </div>
-                </div>
-                <button
-                  onClick={signOut}
-                  className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors duration-200"
-                  aria-label="Cerrar sesión"
-                >
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                aria-label="Toggle menu"
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-[#18181b] flex">
+      {/* Sidebar - Desktop */}
+      <aside className="hidden md:flex flex-col w-20 bg-white dark:bg-[#27272a] border-r border-gray-200 dark:border-gray-700">
+        {/* Logo */}
+        <div className="flex items-center justify-center h-20 border-b border-gray-200 dark:border-gray-700">
+          <Image src="/logo.svg" alt="Clinical" width={36} height={36} className="rounded-xl" />
         </div>
 
-        {/* Mobile Menu Dropdown - Simplificado */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#27272a]">
-            <nav className="px-4 py-3 space-y-1">
-              {navItems.map(({ href, label, icon: Icon }) => {
-                const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200
-                      ${active
-                        ? 'bg-primary text-white'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }
-                    `}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span>{label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Mobile User Section */}
-            <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-3 mb-3">
-                {user?.photoURL && (
-                  <Image
-                    src={user.photoURL}
-                    alt="avatar"
-                    width={40}
-                    height={40}
-                    className="rounded-full ring-2 ring-primary/20"
-                  />
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-primary-dark dark:text-white truncate">
-                    {userProfile?.displayName || user?.email}
-                  </div>
-                  <div className="text-xs text-secondary dark:text-gray-400">Profesional</div>
-                </div>
-                <GoogleCalendarToggle />
-                <ThemeToggle />
-              </div>
-              <button
-                onClick={signOut}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
+        {/* Navigation Items */}
+        <nav className="flex-1 flex flex-col items-center gap-2 py-6 px-3">
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`
+                  group relative flex items-center justify-center w-14 h-14 rounded-2xl
+                  transition-all duration-200
+                  ${active
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary-light'
+                  }
+                `}
+                title={label}
               >
-                <LogOut className="w-4 h-4" />
-                Cerrar sesión
-              </button>
+                <Icon className="w-6 h-6" />
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Bottom Section */}
+        <div className="flex flex-col items-center gap-3 py-4 px-3 border-t border-gray-200 dark:border-gray-700">
+          <GoogleCalendarToggle />
+          <ThemeToggle />
+          {user?.photoURL && (
+            <Image
+              src={user.photoURL}
+              alt="avatar"
+              width={40}
+              height={40}
+              className="rounded-full ring-2 ring-primary/20"
+            />
+          )}
+          <button
+            onClick={signOut}
+            className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors duration-200"
+            aria-label="Cerrar sesión"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Mobile Sidebar */}
+      <aside className={`
+        md:hidden fixed top-0 left-0 h-full w-64 bg-white dark:bg-[#27272a] border-r border-gray-200 dark:border-gray-700 z-50
+        transform transition-transform duration-300 ease-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <Image src="/logo.svg" alt="Clinical" width={32} height={32} className="rounded-xl" />
+            <div>
+              <div className="text-primary-dark dark:text-white font-bold">Clinical</div>
+              <div className="text-xs text-secondary dark:text-gray-400">Gestión</div>
             </div>
           </div>
-        )}
-      </header>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {children}
-      </main>
+        {/* Mobile Navigation */}
+        <nav className="px-3 py-4 space-y-1">
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setSidebarOpen(false)}
+                className={`
+                  flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200
+                  ${active
+                    ? 'bg-primary text-white'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }
+                `}
+              >
+                <Icon className="w-5 h-5" />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Mobile User Section */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 py-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3 mb-3">
+            {user?.photoURL && (
+              <Image
+                src={user.photoURL}
+                alt="avatar"
+                width={40}
+                height={40}
+                className="rounded-full ring-2 ring-primary/20"
+              />
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-primary-dark dark:text-white truncate text-sm">
+                {userProfile?.displayName || user?.email?.split('@')[0]}
+              </div>
+              <div className="text-xs text-secondary dark:text-gray-400">Profesional</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 mb-3">
+            <GoogleCalendarToggle />
+            <ThemeToggle />
+          </div>
+          <button
+            onClick={signOut}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
+          >
+            <LogOut className="w-4 h-4" />
+            Cerrar sesión
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Top Bar */}
+        <header className="md:hidden sticky top-0 z-30 bg-white dark:bg-[#27272a] border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between h-16 px-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="flex items-center gap-2">
+              <Image src="/logo.svg" alt="Clinical" width={28} height={28} className="rounded-xl" />
+              <span className="font-bold text-primary-dark dark:text-white">Clinical</span>
+            </div>
+            <div className="w-10" /> {/* Spacer */}
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 p-6 overflow-auto">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
