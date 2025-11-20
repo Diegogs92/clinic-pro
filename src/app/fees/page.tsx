@@ -31,7 +31,7 @@ export default function FeesPage() {
       <DashboardLayout>
         <div className="space-y-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <h1 className="text-2xl font-bold text-primary-dark">Honorarios</h1>
+            <h1 className="text-2xl font-bold text-primary-dark dark:text-white">Honorarios</h1>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="card"><div className="text-xs text-secondary dark:text-gray-400">Total Ingresos</div><div className="text-2xl font-bold text-black dark:text-white">${totalRevenue.toLocaleString()}</div></div>

@@ -68,7 +68,7 @@ export default function InsurancesPage() {
                   <th className="p-3 text-right font-bold text-navy-darkest dark:text-white">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="text-gray-900 dark:text-gray-100">
+              <tbody className="text-black dark:text-white">
                 {insurances.map(i => (
                   <tr key={i.id} className="border-t border-elegant-100 dark:border-elegant-800 hover:bg-secondary-lighter/40 dark:hover:bg-[#27272a] transition-colors">
                     <td className="p-2 font-medium">{i.name}</td>
