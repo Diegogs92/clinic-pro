@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* Desktop Navigation - Pill Style */}
-            <nav className="hidden md:flex items-center bg-elegant-50/70 dark:bg-elegant-900/50 rounded-full px-2 py-1.5 backdrop-blur-xl border border-elegant-200/50 dark:border-elegant-700/30 shadow-sm">
+            <nav className="hidden md:flex items-center bg-white/70 dark:bg-elegant-900/70 rounded-full px-2 py-1.5 backdrop-blur-xl border border-elegant-200 dark:border-elegant-700/50 shadow-lg shadow-elegant-200/50 dark:shadow-elegant-900/50">
               {navItems.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
                 return (
@@ -45,16 +45,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     key={href}
                     href={href}
                     className={`
-                      relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium
-                      transition-all duration-300
+                      relative flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium
+                      transition-all duration-300 ease-out
                       ${active
-                        ? 'bg-primary text-white shadow-md shadow-primary/20 scale-105'
-                        : 'text-elegant-600 dark:text-elegant-300 hover:text-primary dark:hover:text-primary-light hover:bg-elegant-100 dark:hover:bg-elegant-800 hover:scale-105'
+                        ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-lg shadow-primary/30 scale-105'
+                        : 'text-elegant-600 dark:text-elegant-300 hover:text-white dark:hover:text-white hover:bg-gradient-to-r hover:from-primary/90 hover:to-primary-light/90 hover:scale-105 hover:shadow-md hover:shadow-primary/20'
                       }
                     `}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className={`w-4 h-4 transition-transform duration-300 ${active ? '' : 'group-hover:scale-110'}`} />
                     <span className="whitespace-nowrap">{label}</span>
+                    {active && (
+                      <span className="absolute inset-0 rounded-full bg-white/20 animate-pulse" />
+                    )}
                   </Link>
                 );
               })}

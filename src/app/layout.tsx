@@ -8,8 +8,9 @@ import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { CalendarSyncProvider } from '@/contexts/CalendarSyncContext';
 import NextAuthProvider from '@/components/NextAuthProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import GlobalLoader from '@/components/GlobalLoader';
 import { PatientsProvider } from '@/contexts/PatientsContext';
-import { AppointmentsProvider } from '@/contexts/AppointmentsContext';
+import { AppointmentsProvider} from '@/contexts/AppointmentsContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -83,6 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <CalendarSyncProvider>
                     <ToastProvider>
                       <ConfirmProvider>
+                        <GlobalLoader />
                         {children}
                       </ConfirmProvider>
                     </ToastProvider>

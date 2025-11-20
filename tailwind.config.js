@@ -9,60 +9,71 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Paleta minimalista moderna y sofisticada
+        // Paleta profesional médica - Confianza, Calma y Limpieza
         primary: {
-          DEFAULT: '#339989',     // Verde azulado (teal vibrante)
-          dark: '#2a7d72',        // Teal oscuro
-          light: '#47b5a3',       // Teal claro
-          hover: '#2e8a7d',       // Hover teal
+          DEFAULT: '#0EA5E9',     // Sky Blue - Confianza y profesionalismo
+          dark: '#0284C7',        // Sky 600 - Autoridad
+          light: '#38BDF8',       // Sky 400 - Accesible
+          hover: '#0C7FB8',       // Hover profundo
         },
         secondary: {
-          DEFAULT: '#2B2C28',     // Gris carbón oscuro
-          light: '#4a4c45',       // Gris carbón medio
-          lighter: '#6b6e63',     // Gris carbón claro
+          DEFAULT: '#10B981',     // Emerald - Salud y vitalidad
+          light: '#34D399',       // Emerald 400 - Esperanza
+          lighter: '#6EE7B7',     // Emerald 300 - Suave
         },
         accent: {
-          DEFAULT: '#339989',     // Teal (mismo que primary para cohesión)
-          light: '#5fb3a5',       // Teal suave
-          dark: '#266d62',        // Teal profundo
+          DEFAULT: '#8B5CF6',     // Violet - Innovación médica
+          light: '#A78BFA',       // Violet 400
+          dark: '#7C3AED',        // Violet 600
         },
-        // Colores específicos de la paleta
+        // Colores específicos de la paleta médica
         navy: {
-          darkest: '#131515',     // Negro carbón (#131515)
-          dark: '#2B2C28',        // Gris oscuro (#2B2C28)
-          DEFAULT: '#4a4c45',     // Gris medio
-          light: '#6b6e63',       // Gris claro
+          darkest: '#0F172A',     // Slate 900 - Profesional
+          dark: '#1E293B',        // Slate 800
+          DEFAULT: '#334155',     // Slate 700
+          light: '#64748B',       // Slate 500
         },
-        pearl: '#FFFAFB',         // Blanco perlado (#FFFAFB)
-        // Grises elegantes neutros con base en la paleta
+        pearl: '#F8FAFC',         // Slate 50 - Limpieza extrema
+        // Grises médicos neutros y calmantes
         elegant: {
-          50: '#FFFAFB',          // Pearl
-          100: '#f5f0f1',         // Pearl tinted
-          200: '#e8e3e4',         // Gris muy claro
-          300: '#d1cccf',         // Gris claro
-          400: '#9d9a9c',         // Gris medio
-          500: '#6b6e63',         // Gris
-          600: '#4a4c45',         // Gris oscuro
-          700: '#2B2C28',         // Carbón
-          800: '#1f201d',         // Carbón oscuro
-          900: '#131515',         // Negro carbón
-          950: '#0a0b0a',         // Negro profundo
+          50: '#F8FAFC',          // Blanco médico
+          100: '#F1F5F9',         // Gris muy claro
+          200: '#E2E8F0',         // Gris claro
+          300: '#CBD5E1',         // Gris suave
+          400: '#94A3B8',         // Gris medio
+          500: '#64748B',         // Gris neutro
+          600: '#475569',         // Gris oscuro
+          700: '#334155',         // Slate oscuro
+          800: '#1E293B',         // Casi negro
+          900: '#0F172A',         // Negro profesional
+          950: '#020617',         // Negro profundo
         },
-        // Colores de acento adicionales
+        // Colores de acento médicos
         success: {
-          DEFAULT: '#339989',     // Teal (coherente con primary)
-          light: '#5fb3a5',
-          dark: '#266d62',
+          DEFAULT: '#10B981',     // Verde salud
+          light: '#34D399',
+          dark: '#059669',
         },
         warning: {
-          DEFAULT: '#f59e0b',     // Ámbar
-          light: '#fbbf24',
-          dark: '#d97706',
+          DEFAULT: '#F59E0B',     // Ámbar precaución
+          light: '#FBBF24',
+          dark: '#D97706',
         },
         danger: {
-          DEFAULT: '#ef4444',     // Rojo
-          light: '#f87171',
-          dark: '#dc2626',
+          DEFAULT: '#EF4444',     // Rojo urgencia
+          light: '#F87171',
+          dark: '#DC2626',
+        },
+        // Colores adicionales para UI médica
+        info: {
+          DEFAULT: '#3B82F6',     // Azul información
+          light: '#60A5FA',
+          dark: '#2563EB',
+        },
+        health: {
+          DEFAULT: '#10B981',     // Verde salud
+          light: '#6EE7B7',
+          dark: '#047857',
         },
       },
     },
