@@ -52,23 +52,23 @@ export function Footer() {
 
   return (
     <>
-      <footer className="mt-auto border-t border-elegant-200 dark:border-elegant-800 bg-white dark:bg-elegant-900">
+      <footer className="mt-auto border-t border-elegant-200 dark:border-elegant-800 bg-pearl dark:bg-navy-dark">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
           <div className="relative w-full flex items-center justify-center gap-4">
             <div className="absolute left-0">
               <button
                 onClick={() => setCommentOpen(true)}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold border border-elegant-300 dark:border-elegant-700 text-elegant-700 dark:text-elegant-300 hover:border-primary hover:text-primary dark:hover:border-primary-light dark:hover:text-primary-light transition-all duration-200"
+                className="px-3 py-1.5 rounded-full text-xs font-semibold border border-primary/30 dark:border-primary/40 text-primary dark:text-primary-light hover:border-primary hover:bg-primary/10 dark:hover:border-primary-light dark:hover:bg-primary/20 transition-all duration-300 hover:scale-105"
               >
                 Deja tu comentario
               </button>
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-elegant-600 dark:text-elegant-400">
+            <div className="flex items-center gap-2 text-sm text-elegant-700 dark:text-elegant-300">
               <span>Creado con</span>
-              <Heart className="w-4 h-4 text-red-600 dark:text-red-400 fill-current" strokeWidth={2} />
+              <Heart className="w-4 h-4 text-danger dark:text-danger-light fill-current animate-pulse" strokeWidth={2} />
               <span>por</span>
-              <span className="font-semibold text-navy-dark dark:text-pearl">DGS Solutions</span>
+              <span className="font-semibold text-primary dark:text-primary-light">DGS Solutions</span>
             </div>
           </div>
         </div>
