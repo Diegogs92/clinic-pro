@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             </div>
 
-            {/* Desktop Navigation - Liquid Glass iOS style */}
+            {/* Desktop Navigation - Sliding effect like video */}
             <nav className="hidden md:flex items-center bg-white/60 dark:bg-gray-900/40 rounded-full p-1.5 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg shadow-black/5">
               {navItems.map(({ href, label, icon: Icon }) => {
                  const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
@@ -46,23 +46,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     href={href}
                     className="group relative flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-full overflow-hidden"
                   >
-                    {/* Fondo liquid glass deslizante */}
-                    <span className={`
-                      absolute inset-0 bg-white/90 dark:bg-gray-800/80 rounded-full
-                      backdrop-blur-md shadow-md
-                      transform transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
-                      ${active ? 'scale-100 opacity-100' : 'scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100'}
-                    `} />
+                    {/* Fondo deslizante horizontal de izquierda a derecha */}
+                    <span
+                      className={`
+                        absolute inset-0 bg-white/90 dark:bg-gray-800/80 rounded-full
+                        backdrop-blur-md shadow-md
+                        transition-transform duration-300 ease-out origin-left
+                        ${active ? 'translate-x-0' : '-translate-x-full group-hover:translate-x-0'}
+                      `}
+                    />
 
-                    <Icon className={`w-4 h-4 transition-all duration-300 relative z-10 ${
+                    <Icon className={`w-4 h-4 transition-colors duration-200 relative z-10 ${
                       active
-                        ? 'text-primary dark:text-primary-light scale-110'
-                        : 'text-gray-500 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-primary-light group-hover:scale-110'
+                        ? 'text-primary dark:text-primary-light'
+                        : 'text-gray-500 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-primary-light'
                     }`} />
-                    <span className={`whitespace-nowrap transition-all duration-300 relative z-10 ${
+                    <span className={`whitespace-nowrap transition-colors duration-200 relative z-10 ${
                       active
                         ? 'text-primary dark:text-primary-light font-semibold'
-                        : 'text-gray-600 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-primary-light group-hover:font-medium'
+                        : 'text-gray-600 dark:text-gray-400 group-hover:text-primary dark:group-hover:text-primary-light'
                     }`}>{label}</span>
                   </Link>
                 );
