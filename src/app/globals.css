@@ -30,65 +30,69 @@ body {
 }
 
 @layer components {
-  /* Botones - Smooth y con focus states */
+  /* Botones - Smooth y con focus states mejorados */
   .btn-primary {
-    @apply bg-primary hover:bg-primary-dark text-white font-medium py-2.5 px-4 rounded-lg
-           transition-all duration-200 shadow-sm hover:shadow-md
+    @apply bg-primary hover:bg-primary-hover text-white font-medium py-2.5 px-4 rounded-lg
+           transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5
            focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-           active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+           active:scale-[0.98] active:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed
+           disabled:active:scale-100 disabled:hover:translate-y-0;
   }
 
   .btn-secondary {
     @apply bg-elegant-100 hover:bg-elegant-200 text-elegant-700 font-medium py-2.5 px-4 rounded-lg
-           transition-all duration-200 shadow-sm hover:shadow-md
+           transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5
            dark:bg-elegant-800 dark:hover:bg-elegant-700 dark:text-elegant-100
            focus:outline-none focus:ring-2 focus:ring-elegant-300 dark:focus:ring-elegant-600
-           active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+           active:scale-[0.98] active:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed
+           disabled:active:scale-100 disabled:hover:translate-y-0;
   }
 
-  /* Cards - Smooth hover */
+  /* Cards - Smooth hover con lift effect */
   .card {
     @apply bg-white dark:bg-elegant-900 rounded-xl shadow-sm p-6
            border border-elegant-200 dark:border-elegant-800
-           transition-all duration-200 hover:shadow-md;
+           transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-elegant-300 dark:hover:border-elegant-700;
   }
 
-  /* Inputs - Con focus mejorado */
+  /* Inputs - Con focus mejorado y efecto glow */
   .input-field {
     @apply w-full px-4 py-2.5 border border-elegant-300 dark:border-elegant-700
            rounded-lg bg-white dark:bg-elegant-900
            text-elegant-900 dark:text-white placeholder-elegant-400 dark:placeholder-elegant-500
-           focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
-           transition-all duration-200 hover:border-elegant-400 dark:hover:border-elegant-600
-           disabled:bg-elegant-50 dark:disabled:bg-elegant-950 disabled:cursor-not-allowed;
+           focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+           transition-all duration-300 hover:border-primary/50 dark:hover:border-primary/50
+           disabled:bg-elegant-50 dark:disabled:bg-elegant-950 disabled:cursor-not-allowed
+           focus:shadow-lg focus:shadow-primary/20;
   }
 
-  /* Links - Con underline smooth */
+  /* Links - Con underline smooth y color transition */
   .link {
-    @apply text-primary dark:text-blue-400
+    @apply text-primary dark:text-primary-light
            underline-offset-4 decoration-2 decoration-transparent
-           hover:decoration-current transition-all duration-200;
+           hover:decoration-current hover:text-primary-dark dark:hover:text-primary
+           transition-all duration-300;
   }
 
-  /* Icon buttons - Para acciones con iconos */
+  /* Icon buttons - Para acciones con iconos + efecto ripple */
   .icon-btn {
     @apply p-2 rounded-lg text-elegant-600 dark:text-elegant-400
            hover:bg-elegant-100 dark:hover:bg-elegant-800 hover:text-elegant-900 dark:hover:text-white
-           transition-all duration-200 active:scale-95
+           transition-all duration-300 active:scale-90 hover:scale-105
            focus:outline-none focus:ring-2 focus:ring-elegant-300 dark:focus:ring-elegant-700;
   }
 
   .icon-btn-danger {
-    @apply p-2 rounded-lg text-red-600 dark:text-red-400
-           hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300
-           transition-all duration-200 active:scale-95
-           focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-500;
+    @apply p-2 rounded-lg text-danger dark:text-danger-light
+           hover:bg-danger/10 dark:hover:bg-danger/20 hover:text-danger-dark dark:hover:text-danger
+           transition-all duration-300 active:scale-90 hover:scale-105
+           focus:outline-none focus:ring-2 focus:ring-danger/30 dark:focus:ring-danger/50;
   }
 
   .icon-btn-primary {
     @apply p-2 rounded-lg text-primary dark:text-primary-light
            hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary-dark dark:hover:text-white
-           transition-all duration-200 active:scale-95
+           transition-all duration-300 active:scale-90 hover:scale-105
            focus:outline-none focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary/50;
   }
 
@@ -101,30 +105,35 @@ body {
     @apply text-elegant-600 dark:text-elegant-400;
   }
 
-  /* Badge / Pills */
+  /* Badge / Pills con hover mejorado */
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-           transition-colors duration-200;
+           transition-all duration-300 hover:scale-105;
   }
 
   .badge-primary {
-    @apply bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light;
+    @apply bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light
+           hover:bg-primary/20 dark:hover:bg-primary/30;
   }
 
   .badge-success {
-    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+    @apply bg-success/10 text-success-dark dark:bg-success/20 dark:text-success-light
+           hover:bg-success/20 dark:hover:bg-success/30;
   }
 
   .badge-danger {
-    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+    @apply bg-danger/10 text-danger-dark dark:bg-danger/20 dark:text-danger-light
+           hover:bg-danger/20 dark:hover:bg-danger/30;
   }
 
   .badge-warning {
-    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+    @apply bg-warning/10 text-warning-dark dark:bg-warning/20 dark:text-warning-light
+           hover:bg-warning/20 dark:hover:bg-warning/30;
   }
 
   .badge-info {
-    @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+    @apply bg-secondary/10 text-secondary dark:bg-secondary/20 dark:text-secondary-light
+           hover:bg-secondary/20 dark:hover:bg-secondary/30;
   }
 }
 

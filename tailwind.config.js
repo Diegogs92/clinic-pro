@@ -9,42 +9,60 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Nueva paleta minimalista elegante
+        // Paleta moderna y elegante con degradados sutiles
         primary: {
-          DEFAULT: '#1b263b',     // Azul oscuro principal
-          dark: '#0d1b2a',        // Más oscuro
-          light: '#415a77',       // Más claro
-          hover: '#415a77',       // Hover state
+          DEFAULT: '#2563eb',     // Azul moderno vibrante
+          dark: '#1e40af',        // Azul oscuro intenso
+          light: '#3b82f6',       // Azul claro brillante
+          hover: '#1d4ed8',       // Hover intenso
         },
         secondary: {
-          DEFAULT: '#778da9',     // Azul grisáceo
-          light: '#e0e1dd',       // Gris claro
-          lighter: '#e0e1dd',     // Gris muy claro
+          DEFAULT: '#6366f1',     // Índigo moderno
+          light: '#a5b4fc',       // Índigo claro
+          lighter: '#e0e7ff',     // Índigo muy claro
         },
         accent: {
-          DEFAULT: '#415a77',     // Azul medio para acentos
+          DEFAULT: '#8b5cf6',     // Púrpura moderno
+          light: '#a78bfa',       // Púrpura claro
+          dark: '#7c3aed',        // Púrpura oscuro
         },
         // Colores específicos de la paleta
         navy: {
-          darkest: '#0d1b2a',
-          dark: '#1b263b',
-          DEFAULT: '#415a77',
-          light: '#778da9',
+          darkest: '#0f172a',     // Slate 900
+          dark: '#1e293b',        // Slate 800
+          DEFAULT: '#334155',     // Slate 700
+          light: '#64748b',       // Slate 500
         },
-        pearl: '#e3ebff',
-        // Grises elegantes con tinte azulado
+        pearl: '#f8fafc',         // Slate 50 - Fondo claro moderno
+        // Grises modernos neutros
         elegant: {
-          50: '#f5f7ff',
-          100: '#e3ebff',
-          200: '#d4deff',
-          300: '#b8c5f5',
-          400: '#9ba9e0',
-          500: '#7d8bc9',
-          600: '#6270b0',
-          700: '#4d5a8f',
-          800: '#38446b',
-          900: '#242d47',
-          950: '#151b2d',
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+          950: '#020617',
+        },
+        // Colores de acento adicionales
+        success: {
+          DEFAULT: '#10b981',     // Verde moderno
+          light: '#34d399',
+          dark: '#059669',
+        },
+        warning: {
+          DEFAULT: '#f59e0b',     // Ámbar moderno
+          light: '#fbbf24',
+          dark: '#d97706',
+        },
+        danger: {
+          DEFAULT: '#ef4444',     // Rojo moderno
+          light: '#f87171',
+          dark: '#dc2626',
         },
       },
     },

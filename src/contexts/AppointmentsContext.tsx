@@ -45,6 +45,29 @@ export const AppointmentsProvider = ({ children }: { children: React.ReactNode }
     refreshAppointments();
   }, [refreshAppointments]);
 
+  // Auto-refresh cuando la ventana vuelve al foco
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('[AppointmentsContext] Window focused, refreshing data');
+      refreshAppointments();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[AppointmentsContext] Tab visible, refreshing data');
+        refreshAppointments();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refreshAppointments]);
+
   return (
     <AppointmentsContext.Provider value={{ appointments, loading, refreshAppointments }}>
       {children}

@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* Desktop Navigation - Pill Style */}
-            <nav className="hidden md:flex items-center bg-elegant-50/50 dark:bg-navy-darkest/50 rounded-full px-2 py-1.5 backdrop-blur-md border border-elegant-200/30 dark:border-navy-light/10">
+            <nav className="hidden md:flex items-center bg-elegant-50/70 dark:bg-elegant-900/50 rounded-full px-2 py-1.5 backdrop-blur-xl border border-elegant-200/50 dark:border-elegant-700/30 shadow-sm">
               {navItems.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href));
                 return (
@@ -46,10 +46,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     href={href}
                     className={`
                       relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium
-                      transition-all duration-200
+                      transition-all duration-300
                       ${active
-                        ? 'bg-white dark:bg-navy-light text-navy-dark dark:text-pearl shadow-sm'
-                        : 'text-elegant-600 dark:text-elegant-300 hover:text-navy-dark dark:hover:text-pearl'
+                        ? 'bg-primary text-white shadow-md shadow-primary/20 scale-105'
+                        : 'text-elegant-600 dark:text-elegant-300 hover:text-primary dark:hover:text-primary-light hover:bg-elegant-100 dark:hover:bg-elegant-800 hover:scale-105'
                       }
                     `}
                   >

@@ -41,6 +41,29 @@ export const PatientsProvider = ({ children }: { children: React.ReactNode }) =>
     refreshPatients();
   }, [refreshPatients]);
 
+  // Auto-refresh cuando la ventana vuelve al foco
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('[PatientsContext] Window focused, refreshing data');
+      refreshPatients();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[PatientsContext] Tab visible, refreshing data');
+        refreshPatients();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refreshPatients]);
+
   return (
     <PatientsContext.Provider value={{ patients, loading, refreshPatients }}>
       {children}
