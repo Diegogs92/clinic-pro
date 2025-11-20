@@ -17,14 +17,14 @@ module.exports = {
           hover: '#0C7FB8',       // Hover profundo
         },
         secondary: {
-          DEFAULT: '#10B981',     // Emerald - Salud y vitalidad
-          light: '#34D399',       // Emerald 400 - Esperanza
-          lighter: '#6EE7B7',     // Emerald 300 - Suave
+          DEFAULT: '#1E40AF',     // Blue 800 - Profesionalismo profundo
+          light: '#3B82F6',       // Blue 500 - Azul medio
+          lighter: '#60A5FA',     // Blue 400 - Azul claro
         },
         accent: {
-          DEFAULT: '#8B5CF6',     // Violet - Innovación médica
-          light: '#A78BFA',       // Violet 400
-          dark: '#7C3AED',        // Violet 600
+          DEFAULT: '#1E3A8A',     // Blue 900 - Azul oscuro elegante
+          light: '#2563EB',       // Blue 600
+          dark: '#1E293B',        // Slate 800 - Muy oscuro
         },
         // Colores específicos de la paleta médica
         navy: {
@@ -50,9 +50,9 @@ module.exports = {
         },
         // Colores de acento médicos
         success: {
-          DEFAULT: '#10B981',     // Verde salud
-          light: '#34D399',
-          dark: '#059669',
+          DEFAULT: '#1E40AF',     // Azul profesional
+          light: '#3B82F6',
+          dark: '#1E3A8A',
         },
         warning: {
           DEFAULT: '#F59E0B',     // Ámbar precaución
@@ -71,9 +71,9 @@ module.exports = {
           dark: '#2563EB',
         },
         health: {
-          DEFAULT: '#10B981',     // Verde salud
-          light: '#6EE7B7',
-          dark: '#047857',
+          DEFAULT: '#1E40AF',     // Azul salud
+          light: '#60A5FA',
+          dark: '#1E3A8A',
         },
       },
     },
