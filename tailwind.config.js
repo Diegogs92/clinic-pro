@@ -9,22 +9,29 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Paleta minimalista simplificada
+        // Nueva paleta minimalista elegante
         primary: {
-          DEFAULT: '#0F5257',     // Azul oscuro principal
-          dark: '#0B3142',        // Hover/dark state
-          light: '#388697',       // Light variant
-          hover: '#0B3142',       // Hover state (alias de dark)
+          DEFAULT: '#1b263b',     // Azul oscuro principal
+          dark: '#0d1b2a',        // Más oscuro
+          light: '#415a77',       // Más claro
+          hover: '#415a77',       // Hover state
         },
         secondary: {
-          DEFAULT: '#9C92A3',
-          light: '#C6B9CD',
-          lighter: '#D6D3F0',
+          DEFAULT: '#778da9',     // Azul grisáceo
+          light: '#e0e1dd',       // Gris claro
+          lighter: '#e0e1dd',     // Gris muy claro
         },
         accent: {
-          DEFAULT: '#388697',     // Turquesa para acentos
+          DEFAULT: '#415a77',     // Azul medio para acentos
         },
-        // Los grays de Tailwind se usan para neutrales
+        // Colores específicos de la paleta
+        navy: {
+          darkest: '#0d1b2a',
+          dark: '#1b263b',
+          DEFAULT: '#415a77',
+          light: '#778da9',
+        },
+        pearl: '#e0e1dd',
       },
     },
   },
