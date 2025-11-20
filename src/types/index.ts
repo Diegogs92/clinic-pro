@@ -71,6 +71,8 @@ export interface RecurrenceRule {
 // Insurance types
 export interface Insurance {
   id: string;
+  code?: string; // Código de la obra social
+  acronym?: string; // Sigla de la obra social
   name: string;
   type: 'obra-social' | 'prepaga';
   phone?: string;

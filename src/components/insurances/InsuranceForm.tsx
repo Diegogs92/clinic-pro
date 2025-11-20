@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation';
 import { Insurance } from '@/types';
 
 const schema = z.object({
+  code: z.string().optional(),
+  acronym: z.string().optional(),
   name: z.string().min(2),
   type: z.enum(['obra-social','prepaga']),
   phone: z.string().optional(),
@@ -41,6 +43,8 @@ export default function InsuranceForm({ insuranceId, onSuccess, onCancel }: Prop
         if (ins) {
           setInitial(ins);
           reset({
+            code: ins.code || '',
+            acronym: ins.acronym || '',
             name: ins.name,
             type: ins.type,
             phone: ins.phone,
@@ -78,11 +82,14 @@ export default function InsuranceForm({ insuranceId, onSuccess, onCancel }: Prop
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <div>
-          <label className="block text-xs font-medium text-primary-dark dark:text-white mb-0.5">Nombre</label>
-          <input className="input-field text-sm py-1.5" {...register('name')} />
-          {errors.name && <p className="text-red-600 text-[10px] mt-0.5">{errors.name.message}</p>}
+          <label className="block text-xs font-medium text-primary-dark dark:text-white mb-0.5">Código</label>
+          <input className="input-field text-sm py-1.5" {...register('code')} placeholder="Ej: 100106" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-primary-dark dark:text-white mb-0.5">Sigla</label>
+          <input className="input-field text-sm py-1.5" {...register('acronym')} placeholder="Ej: OSIAD" />
         </div>
         <div>
           <label className="block text-xs font-medium text-primary-dark dark:text-white mb-0.5">Tipo</label>
@@ -91,6 +98,11 @@ export default function InsuranceForm({ insuranceId, onSuccess, onCancel }: Prop
             <option value="prepaga">Prepaga</option>
           </select>
         </div>
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-primary-dark dark:text-white mb-0.5">Denominación (Nombre)</label>
+        <input className="input-field text-sm py-1.5" {...register('name')} />
+        {errors.name && <p className="text-red-600 text-[10px] mt-0.5">{errors.name.message}</p>}
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div>
