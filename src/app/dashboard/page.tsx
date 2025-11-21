@@ -21,6 +21,7 @@ import ECGLoader from '@/components/ui/ECGLoader';
 import GlassViewSelector from '@/components/GlassViewSelector';
 import { createPayment } from '@/lib/payments';
 import { usePayments } from '@/contexts/PaymentsContext';
+import { format } from 'date-fns';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -28,7 +29,7 @@ export default function DashboardPage() {
   const { appointments, loading: appointmentsLoading, refreshAppointments } = useAppointments();
   const { refreshPayments, refreshPendingPayments } = usePayments();
   const [view, setView] = useState<'day' | 'week' | 'month' | 'year'>('week');
-  const [baseDate, setBaseDate] = useState<string>(() => new Date().toISOString().slice(0,10));
+  const [baseDate, setBaseDate] = useState<string>(() => format(new Date(), 'yyyy-MM-dd'));
   const [showForm, setShowForm] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
 
@@ -42,8 +43,8 @@ export default function DashboardPage() {
   const confirm = useConfirm();
 
   const filtered = useMemo(() => {
-    const start = new Date(baseDate);
-    let end = new Date(baseDate);
+    const start = new Date(`${baseDate}T00:00:00`);
+    let end = new Date(start);
     switch (view) {
       case 'day':
         end = new Date(start);

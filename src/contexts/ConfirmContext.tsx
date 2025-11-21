@@ -31,8 +31,12 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     setPending(null);
   };
 
-  const toneClass = (tone: ConfirmOptions['tone']) => {
-    switch (tone) {
+  const toneClass = (tone: ConfirmOptions['tone'], confirmText?: string) => {
+    const resolvedTone =
+      tone ||
+      (confirmText && confirmText.toLowerCase().includes('registrar') ? 'success' : undefined);
+
+    switch (resolvedTone) {
       case 'danger': return 'btn-danger';
       case 'success': return 'btn-success';
       default: return 'btn-primary';
@@ -54,7 +58,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             {pending?.options.cancelText || 'Cancelar'}
           </button>
           <button
-            className={`${toneClass(pending?.options.tone)} px-4 py-2.5 hover:scale-105`}
+            className={`${toneClass(pending?.options.tone, pending?.options.confirmText)} px-4 py-2.5 hover:scale-105`}
             onClick={() => close(true)}
           >
             {pending?.options.confirmText || 'Confirmar'}
