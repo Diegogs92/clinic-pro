@@ -58,7 +58,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             {pending?.options.cancelText || 'Cancelar'}
           </button>
           <button
-            className={`${toneClass(pending?.options.tone, pending?.options.confirmText)} px-4 py-2.5 hover:scale-105`}
+            className={`${toneClass(pending?.options.tone, pending?.options.confirmText)} px-4 py-2.5 transition-all`}
             onClick={() => close(true)}
           >
             {pending?.options.confirmText || 'Confirmar'}
