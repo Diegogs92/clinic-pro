@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import Modal from '@/components/ui/Modal';
 
 interface ConfirmOptions {
@@ -19,6 +19,7 @@ const ConfirmContext = createContext<ConfirmContextType | undefined>(undefined);
 
 export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   const [pending, setPending] = useState<{ options: ConfirmOptions; resolve: (v: boolean) => void } | null>(null);
+  const confirmRef = useRef<HTMLButtonElement | null>(null);
 
   const confirm = useCallback((options: ConfirmOptions) => {
     return new Promise<boolean>((resolve) => {
@@ -32,13 +33,20 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   };
 
   const tone = pending?.options.tone || 'default';
-  // Usamos clases utilitarias explícitas para asegurar que Tailwind no purgue estilos del botón verde
-  const baseConfirm = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg px-4 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
-  const confirmButtonClass = tone === 'danger'
-    ? `${baseConfirm} bg-red-600 hover:bg-red-700 text-white focus:ring-red-500`
-    : tone === 'success'
-      ? `${baseConfirm} bg-green-600 hover:bg-green-700 text-white focus:ring-green-500`
-      : `${baseConfirm} bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500`;
+
+  useEffect(() => {
+    if (pending && confirmRef.current) {
+      confirmRef.current.focus();
+    }
+  }, [pending]);
+
+  const TONE_CLASSES: Record<string, string> = {
+    danger: 'btn-danger',
+    success: 'btn-success',
+    default: 'btn-primary'
+  };
+  const confirmButtonClass = TONE_CLASSES[tone] || TONE_CLASSES.default;
+  const confirmLabel = pending?.options.confirmText || (tone === 'danger' ? 'Eliminar' : tone === 'success' ? 'Registrar' : 'Confirmar');
 
   return (
     <ConfirmContext.Provider value={{ confirm }}>
@@ -50,17 +58,19 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-1">
           <button
             onClick={() => close(false)}
-            className="btn-secondary flex-1 sm:flex-initial"
+            className="btn-secondary flex-1 sm:flex-initial min-w-[120px]"
             type="button"
           >
             {pending?.options.cancelText || 'Cancelar'}
           </button>
           <button
+            ref={confirmRef}
             onClick={() => close(true)}
-            className={`${confirmButtonClass} flex-1 sm:flex-initial`}
+            className={`${confirmButtonClass} flex-1 sm:flex-initial min-w-[120px]`}
             type="button"
+            aria-label={confirmLabel}
           >
-            {pending?.options.confirmText || (tone === 'danger' ? 'Eliminar' : tone === 'success' ? 'Registrar' : 'Confirmar')}
+            {confirmLabel}
           </button>
         </div>
       </Modal>
