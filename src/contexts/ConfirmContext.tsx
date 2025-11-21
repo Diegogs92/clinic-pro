@@ -31,31 +31,30 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     setPending(null);
   };
 
+  const tone = pending?.options.tone || 'default';
+  const toneClass = tone === 'danger' ? 'btn-danger' : tone === 'success' ? 'btn-success' : 'btn-primary';
+
   return (
     <ConfirmContext.Provider value={{ confirm }}>
       {children}
       <Modal open={!!pending} onClose={() => close(false)} title={pending?.options.title || 'Confirmar acción'}>
-        <p className="text-base text-elegant-600 dark:text-elegant-300 mb-6 leading-relaxed">
+        <p className="text-sm md:text-base text-elegant-600 dark:text-elegant-300 mb-5 leading-relaxed">
           {pending?.options.description || '¿Deseas continuar?'}
         </p>
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-1">
           <button
-            className="inline-flex items-center justify-center gap-2 font-medium rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-100 px-4 py-2.5 shadow-sm hover:shadow-md transition-all duration-300"
             onClick={() => close(false)}
+            className="btn-secondary flex-1 sm:flex-initial"
+            type="button"
           >
             {pending?.options.cancelText || 'Cancelar'}
           </button>
           <button
-            className={
-              pending?.options.tone === 'danger'
-                ? 'inline-flex items-center justify-center gap-2 font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 shadow-md hover:shadow-lg transition-all duration-300'
-                : pending?.options.tone === 'success'
-                ? 'inline-flex items-center justify-center gap-2 font-medium rounded-lg bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 shadow-md hover:shadow-lg transition-all duration-300'
-                : 'inline-flex items-center justify-center gap-2 font-medium rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 shadow-md hover:shadow-lg transition-all duration-300'
-            }
             onClick={() => close(true)}
+            className={`${toneClass} flex-1 sm:flex-initial`}
+            type="button"
           >
-            {pending?.options.confirmText || 'Confirmar'}
+            {pending?.options.confirmText || (tone === 'danger' ? 'Eliminar' : 'Confirmar')}
           </button>
         </div>
       </Modal>
