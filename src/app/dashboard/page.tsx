@@ -152,7 +152,7 @@ export default function DashboardPage() {
       title: 'Registrar deuda',
       description: `¿Registrar como deuda pendiente $${appt.fee.toLocaleString()} de ${appt.patientName}?`,
       confirmText: 'Registrar',
-      tone: 'warning'
+      tone: 'danger'
     });
     if (!confirmed) return;
 
