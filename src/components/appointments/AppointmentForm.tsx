@@ -61,8 +61,9 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
     try {
       const start = values.startTime;
       const [h, m] = start.split(':').map(Number);
-      const startDate = new Date(values.date);
-      startDate.setHours(h, m, 0, 0);
+      // Crear fecha evitando problemas de zona horaria
+      const [year, month, day] = values.date.split('-').map(Number);
+      const startDate = new Date(year, month - 1, day, h, m, 0, 0);
       const endDate = new Date(startDate);
       endDate.setMinutes(endDate.getMinutes() + values.duration);
 
@@ -77,6 +78,7 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
         duration: values.duration,
         status: initialData?.status || 'scheduled',
         type: values.type,
+        fee: values.fee,
         notes: values.notes,
         userId: user.uid,
         createdAt: initialData?.createdAt || '',

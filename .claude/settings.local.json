@@ -14,7 +14,9 @@
       "Bash(npm run dev:*)",
       "Bash(echo:*)",
       "Bash(npm install:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(start https://myaccount.google.com/permissions)",
+      "Bash(start https://console.cloud.google.com/apis/credentials/consent)"
     ],
     "deny": [],
     "ask": []

@@ -19,6 +19,7 @@ import { useConfirm } from '@/contexts/ConfirmContext';
 import { translateAppointmentStatus } from '@/lib/translations';
 import ECGLoader from '@/components/ui/ECGLoader';
 import GlassViewSelector from '@/components/GlassViewSelector';
+import { createPayment } from '@/lib/payments';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -96,6 +97,83 @@ export default function DashboardPage() {
       toast.success('Turno eliminado correctamente');
     } catch (error) {
       toast.error('Error al eliminar el turno');
+    }
+  };
+
+  const handlePayment = async (appt: Appointment) => {
+    if (!user) return;
+    if (!appt.fee) {
+      toast.error('Este turno no tiene honorarios asignados');
+      return;
+    }
+
+    const confirmed = await confirm({
+      title: 'Registrar pago',
+      description: `¿Confirmar el pago de $${appt.fee.toLocaleString()} de ${appt.patientName}?`,
+      confirmText: 'Registrar',
+      tone: 'success'
+    });
+    if (!confirmed) return;
+
+    try {
+      await createPayment({
+        appointmentId: appt.id,
+        patientId: appt.patientId,
+        patientName: appt.patientName,
+        amount: appt.fee,
+        method: 'cash', // Por defecto efectivo, se puede cambiar después
+        status: 'completed',
+        date: new Date().toISOString(),
+        consultationType: appt.type,
+        userId: user.uid,
+      });
+
+      // Marcar el turno como completado si estaba pendiente
+      if (appt.status !== 'completed') {
+        await updateAppointment(appt.id, { status: 'completed' });
+        await refreshAppointments();
+      }
+
+      toast.success('Pago registrado correctamente');
+    } catch (error) {
+      console.error('Error al registrar pago:', error);
+      toast.error('Error al registrar el pago');
+    }
+  };
+
+  const handleDebt = async (appt: Appointment) => {
+    if (!user) return;
+    if (!appt.fee) {
+      toast.error('Este turno no tiene honorarios asignados');
+      return;
+    }
+
+    const confirmed = await confirm({
+      title: 'Registrar deuda',
+      description: `¿Registrar como deuda pendiente $${appt.fee.toLocaleString()} de ${appt.patientName}?`,
+      confirmText: 'Registrar',
+      tone: 'warning'
+    });
+    if (!confirmed) return;
+
+    try {
+      await createPayment({
+        appointmentId: appt.id,
+        patientId: appt.patientId,
+        patientName: appt.patientName,
+        amount: appt.fee,
+        method: 'cash',
+        status: 'pending', // Estado pendiente para deuda
+        date: new Date().toISOString(),
+        consultationType: appt.type,
+        notes: 'Deuda registrada desde agenda',
+        userId: user.uid,
+      });
+
+      toast.success('Deuda registrada correctamente');
+    } catch (error) {
+      console.error('Error al registrar deuda:', error);
+      toast.error('Error al registrar la deuda');
     }
   };
 
@@ -252,16 +330,18 @@ export default function DashboardPage() {
                             <td className="p-2 text-right">
                               <div className="flex items-center justify-end gap-1">
                                 <button
-                                  onClick={() => {/* TODO: Implementar pagar */}}
-                                  className="p-1.5 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
+                                  onClick={() => handlePayment(a)}
+                                  disabled={!a.fee}
+                                  className="p-1.5 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                   aria-label="Registrar pago"
                                   title="Registrar pago"
                                 >
                                   <DollarSign className="w-4 h-4" />
                                 </button>
                                 <button
-                                  onClick={() => {/* TODO: Implementar registrar deuda */}}
-                                  className="p-1.5 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded transition-colors"
+                                  onClick={() => handleDebt(a)}
+                                  disabled={!a.fee}
+                                  className="p-1.5 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                   aria-label="Registrar deuda"
                                   title="Registrar deuda"
                                 >
