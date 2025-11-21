@@ -36,6 +36,8 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
       tone ||
       (confirmText && confirmText.toLowerCase().includes('registrar') ? 'success' : undefined);
 
+    console.log('[ConfirmContext] tone:', tone, 'confirmText:', confirmText, 'resolvedTone:', resolvedTone);
+
     switch (resolvedTone) {
       case 'danger': return 'btn-danger';
       case 'success': return 'btn-success';
