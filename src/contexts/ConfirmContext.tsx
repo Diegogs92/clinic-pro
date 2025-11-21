@@ -32,7 +32,13 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   };
 
   const tone = pending?.options.tone || 'default';
-  const toneClass = tone === 'danger' ? 'btn-danger' : tone === 'success' ? 'btn-success' : 'btn-primary';
+  // Usamos clases utilitarias explícitas para asegurar que Tailwind no purgue estilos del botón verde
+  const baseConfirm = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg px-4 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const confirmButtonClass = tone === 'danger'
+    ? `${baseConfirm} bg-red-600 hover:bg-red-700 text-white focus:ring-red-500`
+    : tone === 'success'
+      ? `${baseConfirm} bg-green-600 hover:bg-green-700 text-white focus:ring-green-500`
+      : `${baseConfirm} bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500`;
 
   return (
     <ConfirmContext.Provider value={{ confirm }}>
@@ -51,10 +57,10 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           </button>
           <button
             onClick={() => close(true)}
-            className={`${toneClass} flex-1 sm:flex-initial`}
+            className={`${confirmButtonClass} flex-1 sm:flex-initial`}
             type="button"
           >
-            {pending?.options.confirmText || (tone === 'danger' ? 'Eliminar' : 'Confirmar')}
+            {pending?.options.confirmText || (tone === 'danger' ? 'Eliminar' : tone === 'success' ? 'Registrar' : 'Confirmar')}
           </button>
         </div>
       </Modal>
