@@ -272,3 +272,53 @@ input[type="tel"],
 .ecg-line {
   animation: pulse-line 1.5s ease-in-out infinite;
 }
+
+/* Agenda calendar - minimal look */
+.agenda-calendar {
+  font-family: var(--font-sans, 'Inter'), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.agenda-calendar .rbc-month-view,
+.agenda-calendar .rbc-time-view,
+.agenda-calendar .rbc-agenda-view {
+  border: none;
+  background: transparent;
+}
+
+.agenda-calendar .rbc-header {
+  padding: 8px 4px;
+  border: none;
+  color: #475569;
+  font-weight: 600;
+}
+
+.agenda-calendar .rbc-header + .rbc-header {
+  border-left: none;
+}
+
+.agenda-calendar .rbc-time-header,
+.agenda-calendar .rbc-time-content,
+.agenda-calendar .rbc-month-row {
+  border: none;
+}
+
+.agenda-calendar .rbc-day-bg + .rbc-day-bg,
+.agenda-calendar .rbc-allday-cell + .rbc-allday-cell {
+  border-left: none;
+}
+
+.agenda-calendar .rbc-event {
+  border: none;
+  border-radius: 12px;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, rgba(14,165,233,0.9), rgba(14,165,233,0.7));
+  box-shadow: 0 8px 20px -10px rgba(14,165,233,0.5);
+}
+
+.agenda-calendar .rbc-today {
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.agenda-calendar .rbc-off-range-bg {
+  background: transparent;
+}

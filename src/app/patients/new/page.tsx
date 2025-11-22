@@ -4,15 +4,17 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 export const dynamic = 'force-dynamic';
 import DashboardLayout from '@/components/DashboardLayout';
 import PatientForm from '@/components/patients/PatientForm';
+import Modal from '@/components/ui/Modal';
+import { useRouter } from 'next/navigation';
 
 export default function NewPatientPage() {
+  const router = useRouter();
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="space-y-6 max-w-3xl">
-          <h1 className="text-2xl font-bold text-primary-dark">Nuevo Paciente</h1>
+        <Modal open onClose={() => router.back()} title="Nuevo Paciente" maxWidth="max-w-3xl">
           <PatientForm />
-        </div>
+        </Modal>
       </DashboardLayout>
     </ProtectedRoute>
   );

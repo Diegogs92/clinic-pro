@@ -3,16 +3,18 @@
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLayout from '@/components/DashboardLayout';
 import AppointmentForm from '@/components/agenda/AppointmentForm';
+import Modal from '@/components/ui/Modal';
+import { useRouter } from 'next/navigation';
 export const dynamic = 'force-dynamic';
 
 export default function NewAppointmentPage() {
+  const router = useRouter();
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="space-y-6">
-          <h1 className="text-2xl font-bold text-primary-dark">Nuevo Turno</h1>
+        <Modal open onClose={() => router.back()} title="Nuevo Turno" maxWidth="max-w-3xl">
           <AppointmentForm />
-        </div>
+        </Modal>
       </DashboardLayout>
     </ProtectedRoute>
   );

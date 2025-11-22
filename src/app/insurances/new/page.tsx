@@ -3,16 +3,18 @@
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLayout from '@/components/DashboardLayout';
 import InsuranceForm from '@/components/insurances/InsuranceForm';
+import Modal from '@/components/ui/Modal';
+import { useRouter } from 'next/navigation';
 export const dynamic = 'force-dynamic';
 
 export default function NewInsurancePage() {
+  const router = useRouter();
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="space-y-6 max-w-3xl">
-          <h1 className="text-2xl font-bold text-primary-dark">Nueva Obra Social / Prepaga</h1>
+        <Modal open onClose={() => router.back()} title="Nueva Obra Social / Prepaga" maxWidth="max-w-3xl">
           <InsuranceForm />
-        </div>
+        </Modal>
       </DashboardLayout>
     </ProtectedRoute>
   );

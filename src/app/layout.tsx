@@ -21,7 +21,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Clinic Pro - Sistema de Gestión Médica',
+  title: 'Clinical - Sistema de Gestión Médica',
   description: 'Plataforma profesional para la gestión de consultorios médicos',
   manifest: '/manifest.json',
   themeColor: '#0EA5E9',

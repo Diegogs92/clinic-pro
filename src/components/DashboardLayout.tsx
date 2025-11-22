@@ -55,7 +55,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
-                  Clinic Pro
+                  Clinical
                 </h1>
                 {user && (
                   <p className="text-xs text-elegant-600 dark:text-elegant-400">

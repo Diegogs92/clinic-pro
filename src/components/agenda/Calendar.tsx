@@ -36,13 +36,14 @@ export default function CalendarView({ appointments, onSelect }: Props) {
   });
 
   return (
-    <div className="card">
+    <div className="rounded-2xl bg-white/70 dark:bg-elegant-900/60 backdrop-blur border border-elegant-200/60 dark:border-elegant-800/60 shadow-sm">
       <Calendar
         localizer={localizer}
         events={events}
         startAccessor="start"
         endAccessor="end"
-        style={{ height: 500 }}
+        style={{ height: 520, padding: '12px' }}
+        className="agenda-calendar"
         onSelectEvent={e => onSelect && onSelect(e.resource as Appointment)}
         views={['month', 'week', 'day']}
         messages={{
