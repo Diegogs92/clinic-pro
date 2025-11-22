@@ -16,7 +16,10 @@
       "Bash(npm install:*)",
       "Bash(git pull:*)",
       "Bash(start https://myaccount.google.com/permissions)",
-      "Bash(start https://console.cloud.google.com/apis/credentials/consent)"
+      "Bash(start https://console.cloud.google.com/apis/credentials/consent)",
+      "Bash(git push:*)",
+      "Bash(git restore:*)",
+      "Bash(curl -s https://clinical-ar.vercel.app)"
     ],
     "deny": [],
     "ask": []
