@@ -236,7 +236,7 @@ input[type="tel"],
     @apply border-t border-elegant-100 dark:border-elegant-800 hover:bg-secondary-lighter/30 dark:hover:bg-elegant-800/40 transition-colors;
   }
 
-  /* Superficie transl��cida para secciones */
+  /* Superficie translúcida para secciones */
   .glass-panel {
     @apply bg-white/80 dark:bg-elegant-900/80 backdrop-blur-xl border border-elegant-200/60 dark:border-elegant-800/60 shadow-lg shadow-primary/5 rounded-2xl;
   }
