@@ -5,6 +5,7 @@ import NextAuthProvider from '@/components/NextAuthProvider';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { ConfirmProvider } from '@/contexts/ConfirmContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { PatientsProvider } from '@/contexts/PatientsContext';
 import { AppointmentsProvider } from '@/contexts/AppointmentsContext';
 import { PaymentsProvider } from '@/contexts/PaymentsContext';
@@ -42,20 +43,22 @@ export default function RootLayout({
         <ErrorBoundary>
           <ThemeProvider>
             <NextAuthProvider>
-              <ToastProvider>
-                <ConfirmProvider>
-                  <PatientsProvider>
-                    <AppointmentsProvider>
-                      <PaymentsProvider>
-                        <CalendarSyncProvider>
-                          <GlobalLoader />
-                          {children}
-                        </CalendarSyncProvider>
-                      </PaymentsProvider>
-                    </AppointmentsProvider>
-                  </PatientsProvider>
-                </ConfirmProvider>
-              </ToastProvider>
+              <AuthProvider>
+                <ToastProvider>
+                  <ConfirmProvider>
+                    <PatientsProvider>
+                      <AppointmentsProvider>
+                        <PaymentsProvider>
+                          <CalendarSyncProvider>
+                            <GlobalLoader />
+                            {children}
+                          </CalendarSyncProvider>
+                        </PaymentsProvider>
+                      </AppointmentsProvider>
+                    </PatientsProvider>
+                  </ConfirmProvider>
+                </ToastProvider>
+              </AuthProvider>
             </NextAuthProvider>
           </ThemeProvider>
         </ErrorBoundary>
