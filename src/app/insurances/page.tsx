@@ -65,27 +65,27 @@ export default function InsurancesPage() {
             </button>
           </div>
           <div className="card overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gradient-to-r from-primary/20 to-primary-light/20 dark:bg-gradient-to-r dark:from-primary/30 dark:to-primary-light/30">
-                <tr className="text-left">
-                  <th className="p-3 font-bold text-navy-darkest dark:text-white">Código</th>
-                  <th className="p-3 font-bold text-navy-darkest dark:text-white">Sigla</th>
-                  <th className="p-3 font-bold text-navy-darkest dark:text-white">Contacto</th>
-                  <th className="p-3 font-bold text-navy-darkest dark:text-white">Denominación</th>
-                  <th className="p-3 font-bold text-navy-darkest dark:text-white">Pacientes</th>
-                  <th className="p-3 text-right font-bold text-navy-darkest dark:text-white">Acciones</th>
+            <table className="table-skin">
+              <thead>
+                <tr>
+                  <th>C?digo</th>
+                  <th>Sigla</th>
+                  <th>Contacto</th>
+                  <th>Denominaci?n</th>
+                  <th>Pacientes</th>
+                  <th className="text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="text-black dark:text-white">
+              <tbody>
                 {insurances.map(i => {
                   const patientCount = getPatientCount(i.id);
                   return (
-                    <tr key={i.id} className="border-t border-elegant-100 dark:border-elegant-800 hover:bg-secondary-lighter/40 dark:hover:bg-[#27272a] transition-colors">
-                      <td className="p-2">{i.code || '-'}</td>
-                      <td className="p-2 font-medium">{i.acronym || '-'}</td>
-                      <td className="p-2">{i.phone || i.email || i.website || '-'}</td>
-                      <td className="p-2">{i.name}</td>
-                      <td className="p-2">
+                    <tr key={i.id}>
+                      <td>{i.code || '-'}</td>
+                      <td className="font-medium">{i.acronym || '-'}</td>
+                      <td>{i.phone || i.email || i.website || '-'}</td>
+                      <td>{i.name}</td>
+                      <td>
                         {patientCount > 0 ? (
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs font-semibold">
                             {patientCount}
@@ -94,7 +94,7 @@ export default function InsurancesPage() {
                           <span className="text-gray-400">0</span>
                         )}
                       </td>
-                      <td className="p-2 text-right">
+                      <td className="text-right">
                         <button
                           onClick={() => handleEdit(i.id)}
                           className="text-primary hover:text-primary-dark dark:text-primary-light dark:hover:text-white hover:scale-110 hover:shadow-sm transition-all duration-200 inline-flex items-center gap-1 font-medium"
@@ -112,7 +112,6 @@ export default function InsurancesPage() {
               </tbody>
             </table>
           </div>
-
           <Modal
             open={showModal}
             onClose={handleClose}

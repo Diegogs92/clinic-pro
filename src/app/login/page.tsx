@@ -91,7 +91,7 @@ export default function LoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="card bg-white/95 dark:bg-gray-900/80 border border-white/40 dark:border-gray-700/60 backdrop-blur">
+        <div className="card glass-panel border border-white/50 dark:border-elegant-800/70 shadow-xl">
           <h2 className="text-2xl font-semibold text-primary-dark mb-6 text-center">
             Bienvenido
           </h2>

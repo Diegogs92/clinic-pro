@@ -18,11 +18,14 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: var(--font-sans, 'Inter'), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.08), transparent 30%),
+              radial-gradient(circle at 90% 10%, rgba(52, 211, 153, 0.08), transparent 25%),
+              radial-gradient(circle at 50% 90%, rgba(99, 102, 241, 0.05), transparent 35%);
 }
 
 * {
@@ -51,42 +54,77 @@ input[type="tel"],
 
   /* Botones - Smooth y con focus states mejorados */
   .btn-primary {
-    @apply btn bg-primary hover:bg-primary-hover text-white py-2.5 px-4
-           shadow-md hover:shadow-lg hover:-translate-y-0.5
-           focus:ring-primary
-           active:scale-[0.98] active:shadow-sm disabled:hover:translate-y-0;
+    @apply inline-flex items-center justify-center gap-2 font-medium rounded-lg py-2.5 px-4
+           text-white shadow-md
+           transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary
+           active:scale-[0.98] active:shadow-sm 
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+    background-color: #0EA5E9;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background-color: #0C7FB8;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
   }
 
   .btn-secondary {
-    @apply btn bg-elegant-100 hover:bg-elegant-200 text-elegant-700 py-2.5 px-4
-           shadow-sm hover:shadow-md hover:-translate-y-0.5
-           dark:bg-elegant-800 dark:hover:bg-elegant-700 dark:text-elegant-100
-           focus:ring-elegant-300 dark:focus:ring-elegant-600
-           active:scale-[0.98] active:shadow-sm;
+    @apply inline-flex items-center justify-center gap-2 font-medium rounded-lg py-2.5 px-4
+           shadow-sm
+           transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-offset-2
+           active:scale-[0.98] active:shadow-sm 
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: #F1F5F9;
+    color: #334155;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background-color: #E2E8F0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+  }
+
+  .dark .btn-secondary {
+    background-color: #1E293B;
+    color: #F1F5F9;
+  }
+
+  .dark .btn-secondary:hover:not(:disabled) {
+    background-color: #334155;
   }
 
   .btn-danger {
-    @apply btn text-white py-2.5 px-4
-           shadow-md hover:shadow-lg hover:-translate-y-0.5
-           focus:ring-danger/60 active:scale-[0.98] active:shadow-sm;
-    --tw-bg-opacity: 1;
-    background-color: rgb(239 68 68 / var(--tw-bg-opacity));
+    @apply inline-flex items-center justify-center gap-2 font-medium rounded-lg py-2.5 px-4
+           text-white shadow-md
+           transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-offset-2
+           active:scale-[0.98] active:shadow-sm 
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: #EF4444;
   }
 
-  .btn-danger:hover {
-    background-color: rgb(220 38 38 / var(--tw-bg-opacity));
+  .btn-danger:hover:not(:disabled) {
+    background-color: #DC2626;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
   }
 
   .btn-success {
-    @apply btn text-white py-2.5 px-4
-           shadow-md hover:shadow-lg hover:-translate-y-0.5
-           focus:ring-green-500 active:scale-[0.98] active:shadow-sm;
-    --tw-bg-opacity: 1;
-    background-color: rgb(34 197 94 / var(--tw-bg-opacity));
+    @apply inline-flex items-center justify-center gap-2 font-medium rounded-lg py-2.5 px-4
+           text-white shadow-md
+           transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500
+           active:scale-[0.98] active:shadow-sm 
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: #22C55E;
   }
 
-  .btn-success:hover {
-    background-color: rgb(22 163 74 / var(--tw-bg-opacity));
+  .btn-success:hover:not(:disabled) {
+    background-color: #16A34A;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
   }
 
   /* Cards - Smooth hover con lift effect */
@@ -176,6 +214,37 @@ input[type="tel"],
     @apply bg-secondary/10 text-secondary dark:bg-secondary/20 dark:text-secondary-light
            hover:bg-secondary/20 dark:hover:bg-secondary/30;
   }
+
+  /* Tablas consistentes en todo el dashboard */
+  .table-skin {
+    @apply w-full text-sm bg-white dark:bg-elegant-900 border border-elegant-200 dark:border-elegant-800 rounded-xl shadow-sm overflow-hidden;
+  }
+
+  .table-skin thead tr {
+    @apply bg-gradient-to-r from-primary/10 to-primary-light/10 dark:from-primary/20 dark:to-primary-light/20 text-elegant-700 dark:text-elegant-200;
+  }
+
+  .table-skin th {
+    @apply p-3 text-left text-xs font-semibold uppercase tracking-wide;
+  }
+
+  .table-skin td {
+    @apply p-3 align-middle text-elegant-800 dark:text-elegant-100;
+  }
+
+  .table-skin tbody tr {
+    @apply border-t border-elegant-100 dark:border-elegant-800 hover:bg-secondary-lighter/30 dark:hover:bg-elegant-800/40 transition-colors;
+  }
+
+  /* Superficie transl��cida para secciones */
+  .glass-panel {
+    @apply bg-white/80 dark:bg-elegant-900/80 backdrop-blur-xl border border-elegant-200/60 dark:border-elegant-800/60 shadow-lg shadow-primary/5 rounded-2xl;
+  }
+}
+
+::selection {
+  background: rgba(14, 165, 233, 0.2);
+  color: var(--color-navy-darkest);
 }
 
 /* ECG Loading Animation */

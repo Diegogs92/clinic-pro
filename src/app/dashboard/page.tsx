@@ -12,7 +12,7 @@ import { Appointment } from '@/types';
 import { usePatients } from '@/contexts/PatientsContext';
 import { useAppointments } from '@/contexts/AppointmentsContext';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
-import { CalendarDays, PlusCircle, Edit2, Trash2, Filter, DollarSign, FileText } from 'lucide-react';
+import { CalendarDays, PlusCircle, Edit2, Trash2, Filter, DollarSign, FileText, ChevronDown } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
@@ -229,7 +229,7 @@ export default function DashboardPage() {
                     </span>
                   )}
                 </div>
-                <span className="text-xs">{showFilters ? '▲' : '▼'}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Filtros desplegables */}
@@ -296,29 +296,29 @@ export default function DashboardPage() {
               <>
                 {/* Vista Desktop: Tabla */}
                 <div className="hidden md:block overflow-x-auto">
-                  <table className="min-w-full bg-white dark:bg-[#18181b] rounded-lg">
-                    <thead className="bg-gradient-to-r from-primary/20 to-primary-light/20 dark:bg-gradient-to-r dark:from-primary/30 dark:to-primary-light/30">
-                      <tr className="text-left text-sm">
-                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Fecha</th>
-                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Hora</th>
-                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Paciente</th>
-                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Tipo</th>
-                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Honorarios</th>
-                        <th className="p-3 font-bold text-navy-darkest dark:text-white">Estado</th>
-                        <th className="p-3 text-right font-bold text-navy-darkest dark:text-white">Acciones</th>
+                  <table className="table-skin">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Paciente</th>
+                        <th>Tipo</th>
+                        <th>Honorarios</th>
+                        <th>Estado</th>
+                        <th className="text-right">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody className="text-sm text-black dark:text-white">
+                    <tbody>
                       {filtered.map(a => {
                         const d = new Date(a.date);
                         const fecha = d.toLocaleDateString();
                         return (
-                          <tr key={a.id} className="border-t border-elegant-100 dark:border-elegant-800 hover:bg-secondary-lighter/40 dark:hover:bg-[#27272a] transition-colors">
-                            <td className="p-2 font-medium">{fecha}</td>
-                            <td className="p-2">{a.startTime} - {a.endTime}</td>
-                            <td className="p-2">{a.patientName}</td>
-                            <td className="p-2">{a.type}</td>
-                            <td className="p-2">
+                          <tr key={a.id}>
+                            <td className="font-medium">{fecha}</td>
+                            <td>{a.startTime} - {a.endTime}</td>
+                            <td>{a.patientName}</td>
+                            <td>{a.type}</td>
+                            <td>
                               {a.fee ? (
                                 <span className="font-semibold text-green-600 dark:text-green-400">
                                   ${a.fee.toLocaleString()}
@@ -327,7 +327,7 @@ export default function DashboardPage() {
                                 <span className="text-gray-400">-</span>
                               )}
                             </td>
-                            <td className="p-2">
+                            <td>
                               <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
                                 a.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                                 a.status === 'completed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
@@ -338,7 +338,7 @@ export default function DashboardPage() {
                                 {translateAppointmentStatus(a.status)}
                               </span>
                             </td>
-                            <td className="p-2 text-right">
+                            <td className="text-right">
                               <div className="flex items-center justify-end gap-1">
                                 <button
                                   onClick={() => handlePayment(a)}

@@ -141,37 +141,37 @@ export default function PatientList() {
       </Modal>
       {/* Vista Desktop: Tabla */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="min-w-full bg-white dark:bg-[#18181b] rounded-lg">
-          <thead className="bg-gradient-to-r from-primary/20 to-primary-light/20 dark:bg-gradient-to-r dark:from-primary/30 dark:to-primary-light/30">
-            <tr className="text-left text-sm">
-              <th className="p-3 font-bold text-navy-darkest dark:text-white">Apellido</th>
-              <th className="p-3 font-bold text-navy-darkest dark:text-white">Nombre</th>
-              <th className="p-3 font-bold text-navy-darkest dark:text-white">DNI</th>
-              <th className="p-3 font-bold text-navy-darkest dark:text-white">Teléfono</th>
-              <th className="p-3 font-bold text-navy-darkest dark:text-white">Turnos</th>
-              <th className="p-3 font-bold text-navy-darkest dark:text-white">Pagado</th>
-              <th className="p-3 font-bold text-navy-darkest dark:text-white">Deuda</th>
-              <th className="p-3 text-right font-bold text-navy-darkest dark:text-white">Acciones</th>
+        <table className="table-skin">
+          <thead>
+            <tr>
+              <th>Apellido</th>
+              <th>Nombre</th>
+              <th>DNI</th>
+              <th>Tel?fono</th>
+              <th>Turnos</th>
+              <th>Pagado</th>
+              <th>Deuda</th>
+              <th className="text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody className="text-sm text-black dark:text-white">
+          <tbody>
             {filtered.map(p => {
               const patientAppts = getPatientAppointments(p.id);
               const totalPaid = getPatientPaid(p.id);
               const debt = getPatientDebt(p.id);
 
               return (
-                <tr key={p.id} className="border-t border-elegant-100 dark:border-elegant-800 hover:bg-secondary-lighter/40 dark:hover:bg-[#27272a] transition-colors">
-                  <td className="p-2 font-medium">{p.lastName}</td>
-                  <td className="p-2">{p.firstName}</td>
-                  <td className="p-2">{p.dni}</td>
-                  <td className="p-2">{p.phone}</td>
-                  <td className="p-2">
+                <tr key={p.id}>
+                  <td className="font-medium">{p.lastName}</td>
+                  <td>{p.firstName}</td>
+                  <td>{p.dni}</td>
+                  <td>{p.phone}</td>
+                  <td>
                     <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs font-semibold">
                       {patientAppts.length}
                     </span>
                   </td>
-                  <td className="p-2">
+                  <td>
                     {totalPaid > 0 ? (
                       <span className="text-green-600 dark:text-green-400 font-semibold">
                         ${totalPaid.toLocaleString()}
@@ -180,7 +180,7 @@ export default function PatientList() {
                       <span className="text-secondary dark:text-gray-500">-</span>
                     )}
                   </td>
-                  <td className="p-2">
+                  <td>
                     {debt > 0 ? (
                       <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs font-semibold">
                         ${debt.toLocaleString()}
@@ -189,7 +189,7 @@ export default function PatientList() {
                       <span className="text-secondary dark:text-gray-500">-</span>
                     )}
                   </td>
-                  <td className="p-2">
+                  <td>
                     <div className="flex gap-2 justify-end">
                       <Link href={`/patients/${p.id}`} className="text-primary-dark dark:text-blue-400 hover:underline hover:scale-110 hover:shadow-sm transition-all duration-200 flex items-center gap-1 font-medium"><Edit className="w-4 h-4" /> Editar</Link>
                       <button onClick={() => handleDelete(p.id)} className="text-red-600 dark:text-red-400 hover:underline hover:scale-110 hover:shadow-sm transition-all duration-200 flex items-center gap-1 font-medium"><Trash2 className="w-4 h-4" /> Borrar</button>
@@ -206,7 +206,6 @@ export default function PatientList() {
           </tbody>
         </table>
       </div>
-
       {/* Vista Mobile: Cards */}
       <div className="md:hidden space-y-3">
         {filtered.map(p => {

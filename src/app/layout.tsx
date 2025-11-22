@@ -1,40 +1,29 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { ThemeProvider } from '../contexts/ThemeContext';
+import NextAuthProvider from '@/components/NextAuthProvider';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { ConfirmProvider } from '@/contexts/ConfirmContext';
+import { PatientsProvider } from '@/contexts/PatientsContext';
+import { AppointmentsProvider } from '@/contexts/AppointmentsContext';
+import { PaymentsProvider } from '@/contexts/PaymentsContext';
 import { CalendarSyncProvider } from '@/contexts/CalendarSyncContext';
-import NextAuthProvider from '@/components/NextAuthProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import GlobalLoader from '@/components/GlobalLoader';
-import { PatientsProvider } from '@/contexts/PatientsContext';
-import { AppointmentsProvider} from '@/contexts/AppointmentsContext';
-import { PaymentsProvider } from '@/contexts/PaymentsContext';
 
-const inter = Inter({ subsets: ['latin'] });
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
-  title: 'Clinical - Gestión Profesional de Salud',
-  description: 'Sistema de gestión integral para profesionales de la salud',
+  title: 'Clinic Pro - Sistema de Gestión Médica',
+  description: 'Plataforma profesional para la gestión de consultorios médicos',
   manifest: '/manifest.json',
-  icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: '32x32' },
-      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Clinical',
-  },
-  themeColor: '#08415C',
+  themeColor: '#0EA5E9',
   viewport: {
     width: 'device-width',
     initialScale: 1,
@@ -42,61 +31,33 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="es">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js').catch(console.error);
-                });
-              }
-            `,
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const stored = localStorage.getItem('theme');
-                  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  const shouldBeDark = stored === 'dark' || (!stored && prefersDark);
-                  window.__theme = shouldBeDark ? 'dark' : 'light';
-                  document.documentElement.classList.toggle('dark', shouldBeDark);
-                } catch (error) {
-                  console.error(error);
-                }
-              })();
-            `,
-          }}
-        />
-      </head>
-      <body className={inter.className}>
+    <html lang="es" suppressHydrationWarning className={jakarta.className}>
+      <body className="antialiased bg-pearl dark:bg-elegant-950 text-elegant-900 dark:text-elegant-50 min-h-screen">
         <ErrorBoundary>
-        <NextAuthProvider>
           <ThemeProvider>
-            <AuthProvider>
-              <PatientsProvider>
-                <AppointmentsProvider>
-                  <PaymentsProvider>
-                    <CalendarSyncProvider>
-                      <ToastProvider>
-                        <ConfirmProvider>
+            <NextAuthProvider>
+              <ToastProvider>
+                <ConfirmProvider>
+                  <PatientsProvider>
+                    <AppointmentsProvider>
+                      <PaymentsProvider>
+                        <CalendarSyncProvider>
                           <GlobalLoader />
                           {children}
-                        </ConfirmProvider>
-                      </ToastProvider>
-                    </CalendarSyncProvider>
-                  </PaymentsProvider>
-                </AppointmentsProvider>
-              </PatientsProvider>
-            </AuthProvider>
+                        </CalendarSyncProvider>
+                      </PaymentsProvider>
+                    </AppointmentsProvider>
+                  </PatientsProvider>
+                </ConfirmProvider>
+              </ToastProvider>
+            </NextAuthProvider>
           </ThemeProvider>
-        </NextAuthProvider>
         </ErrorBoundary>
       </body>
     </html>
