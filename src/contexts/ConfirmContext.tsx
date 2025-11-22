@@ -41,9 +41,9 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   }, [pending]);
 
   const TONE_CLASSES: Record<string, string> = {
-    danger: 'bg-white text-danger border border-danger/40 hover:bg-danger/10 hover:text-danger-dark dark:bg-transparent dark:text-danger-light dark:border-danger/50 dark:hover:bg-danger/10',
-    success: 'btn-success',
-    default: 'btn-primary'
+    danger: 'bg-white text-danger border border-danger/40 hover:bg-danger/10 hover:text-danger-dark dark:bg-transparent dark:text-danger-light dark:border-danger/50 dark:hover:bg-danger/10 rounded-xl px-5 py-2 font-semibold shadow-sm',
+    success: 'bg-green-600 text-white hover:bg-green-500 focus:ring-2 focus:ring-offset-2 focus:ring-green-400 rounded-full px-5 py-2 font-semibold shadow-sm transition',
+    default: 'btn-primary rounded-full px-5 py-2'
   };
   const confirmButtonClass = TONE_CLASSES[tone] || TONE_CLASSES.default;
   const confirmLabel = pending?.options.confirmText || (tone === 'danger' ? 'Eliminar' : tone === 'success' ? 'Registrar' : 'Confirmar');
