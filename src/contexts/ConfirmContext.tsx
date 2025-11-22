@@ -40,10 +40,14 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     }
   }, [pending]);
 
+  const baseButtonClass =
+    'w-full sm:w-auto px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm transition focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const cancelButtonClass = `${baseButtonClass} bg-elegant-100 text-elegant-700 hover:bg-elegant-200 focus:ring-elegant-300 dark:bg-elegant-800/80 dark:text-elegant-50 dark:hover:bg-elegant-700/80 dark:focus:ring-elegant-600`;
+
   const TONE_CLASSES: Record<string, string> = {
-    danger: 'bg-white text-danger border border-danger/40 hover:bg-danger/10 hover:text-danger-dark dark:bg-transparent dark:text-danger-light dark:border-danger/50 dark:hover:bg-danger/10 rounded-xl px-5 py-2 font-semibold shadow-sm',
-    success: 'bg-green-600 text-white hover:bg-green-500 focus:ring-2 focus:ring-offset-2 focus:ring-green-400 rounded-full px-5 py-2 font-semibold shadow-sm transition',
-    default: 'btn-primary rounded-full px-5 py-2'
+    danger: `${baseButtonClass} bg-white text-danger border border-danger/40 hover:bg-danger/10 hover:text-danger-dark focus:ring-danger/30 dark:bg-transparent dark:text-danger-light dark:border-danger/50 dark:hover:bg-danger/10 dark:focus:ring-danger/40`,
+    success: `${baseButtonClass} bg-green-600 text-white hover:bg-green-500 focus:ring-green-400`,
+    default: `${baseButtonClass} bg-primary text-white hover:bg-primary-dark focus:ring-primary/40`
   };
   const confirmButtonClass = TONE_CLASSES[tone] || TONE_CLASSES.default;
   const confirmLabel = pending?.options.confirmText || (tone === 'danger' ? 'Eliminar' : tone === 'success' ? 'Registrar' : 'Confirmar');
@@ -52,26 +56,28 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     <ConfirmContext.Provider value={{ confirm }}>
       {children}
       <Modal open={!!pending} onClose={() => close(false)} title={pending?.options.title || 'Confirmar acción'}>
-        <p className="text-sm md:text-base text-elegant-600 dark:text-elegant-300 mb-5 leading-relaxed">
-          {pending?.options.description || '¿Deseas continuar?'}
-        </p>
-        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-1">
-          <button
-            onClick={() => close(false)}
-            className="btn-secondary flex-1 sm:flex-initial min-w-[120px]"
-            type="button"
-          >
-            {pending?.options.cancelText || 'Cancelar'}
-          </button>
-          <button
-            ref={confirmRef}
-            onClick={() => close(true)}
-            className={`${confirmButtonClass} flex-1 sm:flex-initial min-w-[120px]`}
-            type="button"
-            aria-label={confirmLabel}
-          >
-            {confirmLabel}
-          </button>
+        <div className="space-y-4">
+          <p className="text-sm md:text-base text-elegant-600 dark:text-elegant-300 leading-relaxed">
+            {pending?.options.description || '¿Deseas continuar?'}
+          </p>
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-1">
+            <button
+              onClick={() => close(false)}
+              className={cancelButtonClass}
+              type="button"
+            >
+              {pending?.options.cancelText || 'Cancelar'}
+            </button>
+            <button
+              ref={confirmRef}
+              onClick={() => close(true)}
+              className={confirmButtonClass}
+              type="button"
+              aria-label={confirmLabel}
+            >
+              {confirmLabel}
+            </button>
+          </div>
         </div>
       </Modal>
     </ConfirmContext.Provider>
