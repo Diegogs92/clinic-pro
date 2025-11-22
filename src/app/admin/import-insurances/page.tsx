@@ -8,6 +8,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useToast } from '@/contexts/ToastContext';
 import { Upload } from 'lucide-react';
+import { useConfirm } from '@/contexts/ConfirmContext';
 
 export default function ImportInsurancesPage() {
   const { user } = useAuth();
