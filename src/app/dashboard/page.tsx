@@ -20,6 +20,7 @@ import ECGLoader from '@/components/ui/ECGLoader';
 import GlassViewSelector from '@/components/GlassViewSelector';
 import { createPayment } from '@/lib/payments';
 import { usePayments } from '@/contexts/PaymentsContext';
+import { useConfirm } from '@/contexts/ConfirmContext';
 import { format } from 'date-fns';
 
 export default function DashboardPage() {
@@ -27,6 +28,7 @@ export default function DashboardPage() {
   const { patients } = usePatients();
   const { appointments, loading: appointmentsLoading, refreshAppointments } = useAppointments();
   const { refreshPayments, refreshPendingPayments } = usePayments();
+  const confirm = useConfirm();
   const [view, setView] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [baseDate, setBaseDate] = useState<string>(() => format(new Date(), 'yyyy-MM-dd'));
   const [showForm, setShowForm] = useState(false);
