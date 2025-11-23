@@ -3,13 +3,76 @@
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLayout from '@/components/DashboardLayout';
 import { usePayments } from '@/contexts/PaymentsContext';
+import { useState } from 'react';
+import { Payment } from '@/types';
+import { updatePayment, deletePayment } from '@/lib/payments';
+import { useToast } from '@/contexts/ToastContext';
+import { useConfirm } from '@/contexts/ConfirmContext';
+import { Edit2, Trash2 } from 'lucide-react';
+import Modal from '@/components/ui/Modal';
 export const dynamic = 'force-dynamic';
 
 export default function FeesPage() {
-  const { payments, pendingPayments: pending } = usePayments();
+  const { payments, pendingPayments: pending, refreshPayments, refreshPendingPayments } = usePayments();
+  const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
+  const [editAmount, setEditAmount] = useState('');
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
+  const confirm = useConfirm();
 
   const totalRevenue = payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
   const pendingTotal = pending.reduce((sum, p) => sum + p.amount, 0);
+
+  const handleEdit = (payment: Payment) => {
+    setEditingPayment(payment);
+    setEditAmount(payment.amount.toString());
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingPayment) return;
+    const sanitized = editAmount.replace(/\./g, '').replace(',', '.');
+    const amountNum = Number(sanitized);
+
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      toast.error('Ingresa un monto válido');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await updatePayment(editingPayment.id, { amount: amountNum });
+      await refreshPayments();
+      await refreshPendingPayments();
+      toast.success('Honorario actualizado correctamente');
+      setEditingPayment(null);
+      setEditAmount('');
+    } catch (error) {
+      console.error('Error al actualizar honorario:', error);
+      toast.error('Error al actualizar honorario');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (payment: Payment) => {
+    const confirmed = await confirm({
+      title: 'Eliminar honorario',
+      description: `¿Eliminar el honorario de $${payment.amount.toLocaleString()} de ${payment.patientName}?`,
+      confirmText: 'Eliminar',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
+
+    try {
+      await deletePayment(payment.id);
+      await refreshPayments();
+      await refreshPendingPayments();
+      toast.success('Honorario eliminado correctamente');
+    } catch (error) {
+      console.error('Error al eliminar honorario:', error);
+      toast.error('Error al eliminar honorario');
+    }
+  };
 
   return (
     <ProtectedRoute>
@@ -45,6 +108,7 @@ export default function FeesPage() {
                     <th>Paciente</th>
                     <th>Monto</th>
                     <th>Fecha</th>
+                    <th className="text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -53,11 +117,31 @@ export default function FeesPage() {
                       <td>{p.patientName}</td>
                       <td>${p.amount.toLocaleString()}</td>
                       <td>{new Date(p.date).toLocaleDateString()}</td>
+                      <td className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleEdit(p)}
+                            className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                            aria-label="Editar honorario"
+                            title="Editar honorario"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(p)}
+                            className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                            aria-label="Eliminar honorario"
+                            title="Eliminar honorario"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                   {payments.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="p-4 text-center text-black dark:text-white">Sin registros</td>
+                      <td colSpan={4} className="p-4 text-center text-black dark:text-white">Sin registros</td>
                     </tr>
                   )}
                 </tbody>
@@ -71,6 +155,7 @@ export default function FeesPage() {
                     <th>Paciente</th>
                     <th>Monto</th>
                     <th>Fecha</th>
+                    <th className="text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -79,11 +164,31 @@ export default function FeesPage() {
                       <td>{p.patientName}</td>
                       <td>${p.amount.toLocaleString()}</td>
                       <td>{new Date(p.date).toLocaleDateString()}</td>
+                      <td className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleEdit(p)}
+                            className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                            aria-label="Editar honorario"
+                            title="Editar honorario"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(p)}
+                            className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                            aria-label="Eliminar honorario"
+                            title="Eliminar honorario"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                   {pending.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="p-4 text-center text-black dark:text-white">Sin pendientes</td>
+                      <td colSpan={4} className="p-4 text-center text-black dark:text-white">Sin pendientes</td>
                     </tr>
                   )}
                 </tbody>
@@ -91,6 +196,55 @@ export default function FeesPage() {
             </div>
           </div>
         </div>
+
+        <Modal
+          open={!!editingPayment}
+          onClose={() => { setEditingPayment(null); setEditAmount(''); }}
+          title="Editar honorario"
+          maxWidth="max-w-md"
+        >
+          {editingPayment && (
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <p className="text-sm text-elegant-600 dark:text-elegant-300">{editingPayment.patientName}</p>
+                <p className="text-xs text-elegant-500 dark:text-elegant-400">
+                  Fecha: {new Date(editingPayment.date).toLocaleDateString()}
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-elegant-600 dark:text-elegant-300">Monto</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={editAmount}
+                  onChange={(e) => setEditAmount(e.target.value)}
+                  className="input-field text-sm py-2"
+                  placeholder="Ingresar monto"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  className="btn-secondary text-sm px-4 py-2"
+                  onClick={() => { setEditingPayment(null); setEditAmount(''); }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn-primary text-sm px-4 py-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  onClick={handleSaveEdit}
+                  disabled={loading}
+                >
+                  {loading ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          )}
+        </Modal>
       </DashboardLayout>
     </ProtectedRoute>
   );
