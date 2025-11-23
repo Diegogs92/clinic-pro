@@ -5,16 +5,19 @@ import { loadFromLocalStorage, saveToLocalStorage } from './mockStorage';
 
 const PAYMENTS_COLLECTION = 'payments';
 
-// Mock store
-const mockPayments: Payment[] = loadFromLocalStorage<Payment>('payments');
+// Helper functions
 const sortByDateDesc = (items: Payment[]) => [...items].sort((a, b) => b.date.localeCompare(a.date));
+const getMockPayments = (): Payment[] => loadFromLocalStorage<Payment>('payments');
+const saveMockPayments = (payments: Payment[]) => saveToLocalStorage('payments', payments);
 
 export async function createPayment(data: Omit<Payment,'id'|'createdAt'|'updatedAt'>) {
   const now = new Date().toISOString();
   if (mockMode || !db) {
     const id = `mock-pay-${Date.now()}`;
-    mockPayments.push({ ...(data as Payment), id, createdAt: now, updatedAt: now });
-    saveToLocalStorage('payments', mockPayments);
+    const mockPayments = getMockPayments();
+    const newPayment: Payment = { ...data, id, createdAt: now, updatedAt: now };
+    mockPayments.push(newPayment);
+    saveMockPayments(mockPayments);
     return id;
   }
   const colRef = collection(db as Firestore, PAYMENTS_COLLECTION);
@@ -24,10 +27,11 @@ export async function createPayment(data: Omit<Payment,'id'|'createdAt'|'updated
 
 export async function updatePayment(id: string, data: Partial<Payment>) {
   if (mockMode || !db) {
+    const mockPayments = getMockPayments();
     const idx = mockPayments.findIndex(p => p.id === id);
     if (idx !== -1) {
       mockPayments[idx] = { ...mockPayments[idx], ...data, updatedAt: new Date().toISOString() };
-      saveToLocalStorage('payments', mockPayments);
+      saveMockPayments(mockPayments);
     }
     return;
   }
@@ -37,10 +41,11 @@ export async function updatePayment(id: string, data: Partial<Payment>) {
 
 export async function deletePayment(id: string) {
   if (mockMode || !db) {
+    const mockPayments = getMockPayments();
     const idx = mockPayments.findIndex(p => p.id === id);
     if (idx !== -1) {
       mockPayments.splice(idx, 1);
-      saveToLocalStorage('payments', mockPayments);
+      saveMockPayments(mockPayments);
     }
     return;
   }
@@ -49,7 +54,10 @@ export async function deletePayment(id: string) {
 }
 
 export async function getPayment(id: string): Promise<Payment|null> {
-  if (mockMode || !db) return mockPayments.find(p => p.id === id) || null;
+  if (mockMode || !db) {
+    const mockPayments = getMockPayments();
+    return mockPayments.find(p => p.id === id) || null;
+  }
   const docRef = doc(db as Firestore, PAYMENTS_COLLECTION, id);
   const snap = await getDoc(docRef);
   if (!snap.exists()) return null;
@@ -58,7 +66,10 @@ export async function getPayment(id: string): Promise<Payment|null> {
 }
 
 export async function listPayments(userId: string): Promise<Payment[]> {
-  if (mockMode || !db) return sortByDateDesc(mockPayments.filter(p => p.userId === userId));
+  if (mockMode || !db) {
+    const mockPayments = getMockPayments();
+    return sortByDateDesc(mockPayments.filter(p => p.userId === userId));
+  }
 
   // Evitar indices compuestos: filtramos por usuario y ordenamos en cliente
   const q = query(collection(db as Firestore, PAYMENTS_COLLECTION), where('userId','==',userId));
@@ -69,7 +80,10 @@ export async function listPayments(userId: string): Promise<Payment[]> {
 }
 
 export async function listPendingPayments(userId: string): Promise<Payment[]> {
-  if (mockMode || !db) return sortByDateDesc(mockPayments.filter(p => p.userId === userId && p.status === 'pending'));
+  if (mockMode || !db) {
+    const mockPayments = getMockPayments();
+    return sortByDateDesc(mockPayments.filter(p => p.userId === userId && p.status === 'pending'));
+  }
 
   // Traemos todos los pagos del usuario y filtramos pendientes en memoria para evitar requerir indices
   const q = query(collection(db as Firestore, PAYMENTS_COLLECTION), where('userId','==',userId));
