@@ -6,7 +6,7 @@ import { getStorage, type FirebaseStorage } from 'firebase/storage';
 // Determinar si estamos en modo mock (sin credenciales reales)
 const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 // FORZAR MODO MOCK: Cambiar a false cuando tengas Firebase configurado correctamente
-const FORCE_MOCK_MODE = true;
+const FORCE_MOCK_MODE = false; // ← Desactivado para usar Firebase real
 export const mockMode = FORCE_MOCK_MODE || !apiKey || apiKey === 'your_api_key_here' || apiKey === 'TU_API_KEY_AQUI';
 
 let app: FirebaseApp | null = null;
