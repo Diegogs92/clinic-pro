@@ -38,6 +38,14 @@ export default function FeesPage() {
       return;
     }
 
+    const confirmed = await confirm({
+      title: 'Confirmar cambios',
+      description: `¿Actualizar el honorario de ${editingPayment.patientName} de $${editingPayment.amount.toLocaleString()} a $${amountNum.toLocaleString()}?`,
+      confirmText: 'Guardar cambios',
+      tone: 'success',
+    });
+    if (!confirmed) return;
+
     setLoading(true);
     try {
       await updatePayment(editingPayment.id, { amount: amountNum });
