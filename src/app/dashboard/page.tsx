@@ -21,6 +21,7 @@ import GlassViewSelector from '@/components/GlassViewSelector';
 import { createPayment } from '@/lib/payments';
 import { usePayments } from '@/contexts/PaymentsContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
+import { useCalendarSync } from '@/contexts/CalendarSyncContext';
 import { addDays, addMonths, addYears, startOfMonth, startOfWeek, startOfYear, format } from 'date-fns';
 import { combineDateAndTime } from '@/lib/dateUtils';
 
@@ -38,6 +39,7 @@ export default function DashboardPage() {
   const { appointments, loading: appointmentsLoading, refreshAppointments } = useAppointments();
   const { payments, pendingPayments, refreshPayments, refreshPendingPayments } = usePayments();
   const confirm = useConfirm();
+  const { syncAppointment, syncEnabled } = useCalendarSync();
   const [view, setView] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [showForm, setShowForm] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
@@ -180,6 +182,11 @@ export default function DashboardPage() {
     try {
       await updateAppointment(appt.id, { status: 'cancelled' });
 
+      // Sincronizar cancelación con Google Calendar
+      if (syncEnabled && appt.googleCalendarEventId) {
+        await syncAppointment({ ...appt, status: 'cancelled' }, 'delete', appt.googleCalendarEventId);
+      }
+
       if (isToday && appt.fee) {
         const charge = await confirm({
           title: '¿Cobraste honorarios?',
@@ -224,6 +231,11 @@ export default function DashboardPage() {
     if (!confirmed) return;
 
     try {
+      // Sincronizar eliminación con Google Calendar ANTES de eliminar de Firestore
+      if (syncEnabled && appt.googleCalendarEventId) {
+        await syncAppointment(appt, 'delete', appt.googleCalendarEventId);
+      }
+
       await deleteAppointment(appt.id, user.uid);
       await refreshAppointments();
       await refreshPayments();
