@@ -3,11 +3,11 @@
  */
 
 export const appointmentStatusTranslations = {
-  scheduled: 'Programado',
-  confirmed: 'Confirmado',
-  completed: 'Completado',
-  cancelled: 'Cancelado',
-  'no-show': 'Ausente',
+  scheduled: 'AGENDADO',
+  confirmed: 'AGENDADO',
+  completed: 'PRESENTE',
+  cancelled: 'CANCELADO',
+  'no-show': 'AUSENTE',
 } as const;
 
 export const paymentStatusTranslations = {

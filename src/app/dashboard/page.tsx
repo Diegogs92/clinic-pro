@@ -7,12 +7,12 @@ import StatsOverview from '@/components/dashboard/StatsOverview';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { updateAppointment, deleteAppointment } from '@/lib/appointments';
+import { updateAppointment } from '@/lib/appointments';
 import { Appointment } from '@/types';
 import { usePatients } from '@/contexts/PatientsContext';
 import { useAppointments } from '@/contexts/AppointmentsContext';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
-import { CalendarDays, PlusCircle, Edit2, Trash2, Filter, DollarSign, ChevronDown } from 'lucide-react';
+import { CalendarDays, PlusCircle, Edit2, DollarSign, Search, Clock, Ban } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import { useToast } from '@/contexts/ToastContext';
 import { translateAppointmentStatus } from '@/lib/translations';
@@ -21,7 +21,16 @@ import GlassViewSelector from '@/components/GlassViewSelector';
 import { createPayment } from '@/lib/payments';
 import { usePayments } from '@/contexts/PaymentsContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
-import { format } from 'date-fns';
+import { addDays, addMonths, addYears, startOfMonth, startOfWeek, startOfYear, format } from 'date-fns';
+import { combineDateAndTime } from '@/lib/dateUtils';
+
+const statusOptions = [
+  { value: '', label: 'Todos los estados' },
+  { value: 'scheduled', label: 'Agendado' },
+  { value: 'completed', label: 'Presente' },
+  { value: 'cancelled', label: 'Cancelado' },
+  { value: 'no-show', label: 'Ausente' },
+];
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -30,7 +39,6 @@ export default function DashboardPage() {
   const { refreshPayments, refreshPendingPayments } = usePayments();
   const confirm = useConfirm();
   const [view, setView] = useState<'day' | 'week' | 'month' | 'year'>('week');
-  const [baseDate, setBaseDate] = useState<string>(() => format(new Date(), 'yyyy-MM-dd'));
   const [showForm, setShowForm] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [paymentDialog, setPaymentDialog] = useState<{ open: boolean; appointment?: Appointment; mode: 'total' | 'partial'; amount: string }>({
@@ -39,74 +47,133 @@ export default function DashboardPage() {
     mode: 'total',
     amount: '',
   });
-
-  // Filtros
   const [filterPatient, setFilterPatient] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
-  const [filterType, setFilterType] = useState<string>('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [search, setSearch] = useState<string>('');
+  const [now, setNow] = useState<Date>(new Date());
 
   const toast = useToast();
 
-  const filtered = useMemo(() => {
-    const start = new Date(`${baseDate}T00:00:00`);
-    let end = new Date(start);
+  // Reloj en vivo
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Autotransición a PRESENTE cuando el turno ya pasó (excepto cancelados/ausentes)
+  useEffect(() => {
+    const processStatuses = async () => {
+      const current = new Date();
+      const toUpdate = appointments.filter(a => {
+        if (['cancelled', 'no-show', 'completed'].includes(a.status)) return false;
+        const end = combineDateAndTime(a.date, a.endTime);
+        return end < current;
+      });
+
+      if (!toUpdate.length) return;
+
+      try {
+        await Promise.all(toUpdate.map(a => updateAppointment(a.id, { status: 'completed' })));
+        await refreshAppointments();
+      } catch (error) {
+        console.error('Error auto-actualizando estados:', error);
+      }
+    };
+
+    processStatuses();
+  }, [appointments, refreshAppointments]);
+
+  const windowRange = useMemo(() => {
+    const startBase = new Date(now);
+    startBase.setHours(0, 0, 0, 0);
+
     switch (view) {
-      case 'day':
-        end = new Date(start);
-        end.setDate(start.getDate() + 1);
-        break;
-      case 'week':
-        end = new Date(start);
-        end.setDate(start.getDate() + 7);
-        break;
-      case 'month':
-        end = new Date(start);
-        end.setMonth(start.getMonth() + 1);
-        break;
-      case 'year':
-        end = new Date(start);
-        end.setFullYear(start.getFullYear() + 1);
-        break;
+      case 'day': {
+        const end = addDays(startBase, 1);
+        return { start: startBase, end };
+      }
+      case 'week': {
+        const start = startOfWeek(startBase, { weekStartsOn: 1 });
+        const end = addDays(start, 7);
+        return { start, end };
+      }
+      case 'month': {
+        const start = startOfMonth(startBase);
+        const end = addMonths(start, 1);
+        return { start, end };
+      }
+      case 'year': {
+        const start = startOfYear(startBase);
+        const end = addYears(start, 1);
+        return { start, end };
+      }
+      default:
+        return { start: startBase, end: addDays(startBase, 7) };
     }
+  }, [now, view]);
 
-    return appointments.filter(a => {
-      const d = new Date(a.date);
-      const inDateRange = d >= start && d < end;
-      const matchesPatient = !filterPatient || a.patientId === filterPatient;
-      const matchesStatus = !filterStatus || a.status === filterStatus;
-      const matchesType = !filterType || a.type.toLowerCase().includes(filterType.toLowerCase());
-
-      return inDateRange && matchesPatient && matchesStatus && matchesType;
-    }).sort((a, b) => a.date.localeCompare(b.date));
-  }, [appointments, baseDate, view, filterPatient, filterStatus, filterType]);
-
-  const uniqueTypes = useMemo(() => {
-    const types = new Set(appointments.map(a => a.type));
-    return Array.from(types).sort();
-  }, [appointments]);
-
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return appointments
+      .filter(a => {
+        const d = new Date(a.date);
+        const inDateRange = d >= windowRange.start && d < windowRange.end;
+        const matchesPatient = !filterPatient || a.patientId === filterPatient;
+        const matchesStatus = !filterStatus || a.status === filterStatus;
+        const matchesSearch = !query || a.patientName.toLowerCase().includes(query);
+        return inDateRange && matchesPatient && matchesStatus && matchesSearch;
+      })
+      .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime));
+  }, [appointments, filterPatient, filterStatus, search, windowRange.end, windowRange.start]);
 
   const handleEdit = (appt: Appointment) => {
     setEditingAppointment(appt);
     setShowForm(true);
   };
 
-  const handleDelete = async (appt: Appointment) => {
+  const handleCancel = async (appt: Appointment) => {
     const confirmed = await confirm({
-      title: 'Eliminar turno',
-      description: `?Est?s seguro de eliminar el turno de ${appt.patientName}? Esta acci?n no se puede deshacer.`,
-      confirmText: 'Eliminar',
-      tone: 'danger'
+      title: 'Cancelar turno',
+      description: `¿Cancelar el turno de ${appt.patientName}?`,
+      confirmText: 'Cancelar turno',
+      tone: 'danger',
     });
     if (!confirmed) return;
 
+    const isToday = appt.date === format(now, 'yyyy-MM-dd');
+
     try {
-      await deleteAppointment(appt.id);
+      await updateAppointment(appt.id, { status: 'cancelled' });
+
+      if (isToday && appt.fee) {
+        const charge = await confirm({
+          title: '¿Cobraste honorarios?',
+          description: `¿Registrar honorarios de $${appt.fee.toLocaleString()} para este turno cancelado hoy?`,
+          confirmText: 'Sí, registrar',
+          cancelText: 'No, omitir',
+          tone: 'success',
+        });
+
+        await createPayment({
+          appointmentId: appt.id,
+          patientId: appt.patientId,
+          patientName: appt.patientName,
+          amount: appt.fee,
+          method: 'cash',
+          status: charge ? 'completed' : 'pending',
+          date: new Date().toISOString(),
+          consultationType: appt.type,
+          userId: user?.uid || '',
+        });
+      }
+
       await refreshAppointments();
-      toast.success('Turno eliminado correctamente');
+      await refreshPayments();
+      await refreshPendingPayments();
+      toast.success('Turno cancelado');
     } catch (error) {
-      toast.error('Error al eliminar el turno');
+      console.error('Error al cancelar turno:', error);
+      toast.error('No se pudo cancelar el turno');
     }
   };
 
@@ -128,7 +195,7 @@ export default function DashboardPage() {
     if (!user || !appt) return;
     const amountNum = Number(paymentDialog.amount);
     if (!amountNum || amountNum <= 0) {
-      toast.error('Ingresa un monto v?lido');
+      toast.error('Ingresa un monto válido');
       return;
     }
     const isTotal = appt.fee ? amountNum >= appt.fee : true;
@@ -161,19 +228,32 @@ export default function DashboardPage() {
       toast.error('Error al registrar el pago');
     }
   };
+
   return (
     <ProtectedRoute>
       <DashboardLayout>
         <div className="space-y-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <h1 className="flex items-center gap-2 text-2xl font-bold text-primary-dark dark:text-white"><CalendarDays className="w-6 h-6"/> Agenda</h1>
+            <div className="flex items-center gap-3">
+              <Clock className="w-6 h-6 text-primary" />
+              <div>
+                <p className="text-xs uppercase tracking-[0.15em] text-elegant-500">Inicio</p>
+                <h1 className="text-2xl font-bold text-primary-dark dark:text-white">
+                  {format(now, 'dd/MM/yyyy HH:mm')}
+                </h1>
+              </div>
+            </div>
             <div className="flex gap-2">
-              <button onClick={() => { setEditingAppointment(null); setShowForm(true); }} className="btn-primary flex items-center gap-2 hover:shadow-lg hover:scale-105 transition-all"><PlusCircle className="w-4 h-4"/> Nuevo Turno</button>
+              <button onClick={() => { setEditingAppointment(null); setShowForm(true); }} className="btn-primary flex items-center gap-2 hover:shadow-lg hover:scale-105 transition-all">
+                <PlusCircle className="w-4 h-4" /> Nuevo Turno
+              </button>
             </div>
           </div>
+
           <StatsOverview />
+
           <div className="card">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <div className="flex flex-col gap-3 mb-4">
               <GlassViewSelector
                 options={[
                   { value: 'day', label: 'Día' },
@@ -184,37 +264,22 @@ export default function DashboardPage() {
                 value={view}
                 onChange={(v) => setView(v as 'day' | 'week' | 'month' | 'year')}
               />
-              <input type="date" value={baseDate} onChange={e=>setBaseDate(e.target.value)} className="input-field md:w-56" />
-            </div>
 
-            {/* Filtros - Botón toggle en móvil */}
-            <div className="mb-4">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="md:hidden w-full flex items-center justify-between px-4 py-3 bg-secondary-lighter/30 dark:bg-gray-700/30 rounded-lg text-sm font-medium text-primary-dark dark:text-white mb-2 hover:shadow-md hover:scale-[1.02] transition-all duration-200 active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4" />
-                  <span>Filtros</span>
-                  {(filterPatient || filterStatus || filterType) && (
-                    <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-primary rounded-full">
-                      !
-                    </span>
-                  )}
-                </div>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Filtros desplegables */}
-              <div className={`${showFilters ? 'block' : 'hidden'} md:flex flex-col md:flex-row gap-3 p-4 bg-secondary-lighter/30 dark:bg-gray-700/30 rounded-lg`}>
-                <div className="hidden md:flex items-center gap-2 text-sm font-medium text-primary-dark dark:text-white">
-                  <Filter className="w-4 h-4" />
-                  Filtros:
-                </div>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+                <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-elegant-100 dark:bg-elegant-800 text-sm text-elegant-700 dark:text-elegant-300">
+                  <Search className="w-4 h-4" />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Buscar paciente"
+                    className="flex-1 bg-transparent outline-none text-sm placeholder:text-elegant-400 dark:placeholder:text-elegant-500"
+                  />
+                </label>
                 <select
                   value={filterPatient}
                   onChange={e => setFilterPatient(e.target.value)}
-                  className="input-field flex-1"
+                  className="input-field"
                 >
                   <option value="">Todos los pacientes</option>
                   {patients.map(p => (
@@ -224,35 +289,18 @@ export default function DashboardPage() {
                 <select
                   value={filterStatus}
                   onChange={e => setFilterStatus(e.target.value)}
-                  className="input-field flex-1"
+                  className="input-field"
                 >
-                  <option value="">Todos los estados</option>
-                  <option value="scheduled">Programado</option>
-                  <option value="confirmed">Confirmado</option>
-                  <option value="completed">Completado</option>
-                  <option value="cancelled">Cancelado</option>
-                  <option value="no-show">No asistió</option>
-                </select>
-                <select
-                  value={filterType}
-                  onChange={e => setFilterType(e.target.value)}
-                  className="input-field flex-1"
-                >
-                  <option value="">Todos los tipos</option>
-                  {uniqueTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
+                  {statusOptions.map(o => (
+                    <option key={o.value || 'all'} value={o.value}>{o.label}</option>
                   ))}
                 </select>
-                {(filterPatient || filterStatus || filterType) && (
+                {(filterPatient || filterStatus || search) && (
                   <button
-                    onClick={() => {
-                      setFilterPatient('');
-                      setFilterStatus('');
-                      setFilterType('');
-                    }}
-                    className="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg hover:shadow-md hover:scale-105 transition-all duration-200 whitespace-nowrap active:scale-[0.98]"
+                    onClick={() => { setFilterPatient(''); setFilterStatus(''); setSearch(''); }}
+                    className="btn-secondary"
                   >
-                    Limpiar
+                    Limpiar filtros
                   </button>
                 )}
               </div>
@@ -267,7 +315,6 @@ export default function DashboardPage() {
               <p className="text-black dark:text-white">No hay turnos en el período seleccionado.</p>
             ) : (
               <>
-                {/* Vista Desktop: Tabla */}
                 <div className="hidden md:block overflow-x-auto">
                   <table className="table-skin">
                     <thead>
@@ -275,7 +322,6 @@ export default function DashboardPage() {
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Paciente</th>
-                        <th>Tipo</th>
                         <th>Honorarios</th>
                         <th>Estado</th>
                         <th className="text-right">Acciones</th>
@@ -290,7 +336,6 @@ export default function DashboardPage() {
                             <td className="font-medium">{fecha}</td>
                             <td>{a.startTime} - {a.endTime}</td>
                             <td>{a.patientName}</td>
-                            <td>{a.type}</td>
                             <td>
                               {a.fee ? (
                                 <span className="font-semibold text-green-600 dark:text-green-400">
@@ -302,11 +347,10 @@ export default function DashboardPage() {
                             </td>
                             <td>
                               <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                                a.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                                a.status === 'completed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                                a.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                                 a.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
                                 a.status === 'no-show' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
-                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                               }`}>
                                 {translateAppointmentStatus(a.status)}
                               </span>
@@ -330,11 +374,11 @@ export default function DashboardPage() {
                                   <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
-                                  onClick={() => handleDelete(a)}
+                                  onClick={() => handleCancel(a)}
                                   className="icon-btn-danger"
-                                  aria-label="Eliminar turno"
+                                  aria-label="Cancelar turno"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Ban className="w-4 h-4" />
                                 </button>
                               </div>
                             </td>
@@ -345,7 +389,6 @@ export default function DashboardPage() {
                   </table>
                 </div>
 
-                {/* Vista Mobile: Cards */}
                 <div className="md:hidden space-y-3">
                   {filtered.map(a => {
                     const d = new Date(a.date);
@@ -361,28 +404,26 @@ export default function DashboardPage() {
                               {a.patientName}
                             </h3>
                             <p className="text-sm text-secondary dark:text-gray-400 mt-1">
-                              {a.type}
+                              {fecha} • {a.startTime} - {a.endTime}
                             </p>
                           </div>
                           <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                            a.status === 'confirmed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                            a.status === 'completed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                            a.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                             a.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
                             a.status === 'no-show' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
-                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                           }`}>
                             {translateAppointmentStatus(a.status)}
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300 mb-3">
-                          <div className="flex items-center gap-1">
-                            <CalendarDays className="w-4 h-4" />
-                            <span>{fecha}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium">{a.startTime} - {a.endTime}</span>
-                          </div>
+                        <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300 mb-3">
+                          <CalendarDays className="w-4 h-4" />
+                          {a.fee ? (
+                            <span className="font-semibold text-green-600 dark:text-green-400">${a.fee.toLocaleString()}</span>
+                          ) : (
+                            <span className="text-gray-400">Sin honorarios</span>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-2 pt-3 border-t border-secondary-lighter dark:border-gray-700">
@@ -394,10 +435,10 @@ export default function DashboardPage() {
                             Editar
                           </button>
                           <button
-                            onClick={() => handleDelete(a)}
+                            onClick={() => handleCancel(a)}
                             className="btn-danger px-4 py-2.5"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Ban className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -412,10 +453,10 @@ export default function DashboardPage() {
             <AppointmentForm
               initialData={editingAppointment || undefined}
               onCreated={(appt?: Appointment) => {
-                console.log('[Dashboard] onCreated callback received:', appt);
                 setShowForm(false);
                 setEditingAppointment(null);
                 toast.success(editingAppointment ? 'Turno actualizado correctamente' : 'Turno creado correctamente');
+                refreshAppointments();
               }}
               onCancel={()=>{setShowForm(false); setEditingAppointment(null);}}
             />

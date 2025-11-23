@@ -31,7 +31,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navItems = [
     { href: '/dashboard', label: 'Inicio', icon: LayoutDashboard },
-    { href: '/agenda', label: 'Agenda', icon: CalendarDays },
     { href: '/patients', label: 'Pacientes', icon: Users },
     { href: '/insurances', label: 'Obras Sociales', icon: Shield },
     { href: '/fees', label: 'Honorarios', icon: DollarSign },
