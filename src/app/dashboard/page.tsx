@@ -47,6 +47,7 @@ export default function DashboardPage() {
     mode: 'total',
     amount: '',
   });
+  const [submittingPayment, setSubmittingPayment] = useState(false);
   const [filterPatient, setFilterPatient] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [search, setSearch] = useState<string>('');
@@ -247,6 +248,7 @@ export default function DashboardPage() {
     const status: 'completed' | 'pending' = isTotal ? 'completed' : 'pending';
 
     try {
+      setSubmittingPayment(true);
       await createPayment({
         appointmentId: appt.id,
         patientId: appt.patientId,
@@ -271,6 +273,8 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Error al registrar pago:', error);
       toast.error('Error al registrar el pago');
+    } finally {
+      setSubmittingPayment(false);
     }
   };
 
@@ -576,10 +580,11 @@ export default function DashboardPage() {
               </button>
               <button
                 type="button"
-                className="btn-primary text-sm px-4 py-2"
+                className="btn-primary text-sm px-4 py-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 onClick={submitPayment}
+                disabled={submittingPayment}
               >
-                Registrar
+                {submittingPayment ? 'Registrando...' : 'Registrar'}
               </button>
             </div>
           </div>
