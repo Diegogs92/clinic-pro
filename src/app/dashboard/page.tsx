@@ -142,14 +142,6 @@ export default function DashboardPage() {
       const end = combineDateAndTime(appt.date, appt.endTime);
       const past = end < now;
 
-      console.log(`[DEBUG paymentStateFor] Turno ${appt.patientName}:`, {
-        fee: appt.fee,
-        completed,
-        pending,
-        totalPaid,
-        remainingAmount
-      });
-
       if (completed >= (appt.fee || 0)) {
         return { color: 'text-green-600 dark:text-green-400', status: 'paid', remainingAmount: 0 };
       }
@@ -248,7 +240,6 @@ export default function DashboardPage() {
   };
 
   const openPaymentDialog = (appt: Appointment) => {
-    console.log('[DEBUG openPaymentDialog] Turno:', { id: appt.id, patientName: appt.patientName, fee: appt.fee });
     if (!appt.fee) {
       toast.error('Este turno no tiene honorarios asignados');
       return;
