@@ -7,12 +7,12 @@ import StatsOverview from '@/components/dashboard/StatsOverview';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { updateAppointment } from '@/lib/appointments';
+import { updateAppointment, deleteAppointment } from '@/lib/appointments';
 import { Appointment } from '@/types';
 import { usePatients } from '@/contexts/PatientsContext';
 import { useAppointments } from '@/contexts/AppointmentsContext';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
-import { CalendarDays, PlusCircle, Edit2, DollarSign, Search, Clock, Ban } from 'lucide-react';
+import { CalendarDays, PlusCircle, Edit2, DollarSign, Search, Clock, Ban, Trash2 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import { useToast } from '@/contexts/ToastContext';
 import { translateAppointmentStatus } from '@/lib/translations';
@@ -36,7 +36,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { patients } = usePatients();
   const { appointments, loading: appointmentsLoading, refreshAppointments } = useAppointments();
-  const { refreshPayments, refreshPendingPayments } = usePayments();
+  const { payments, pendingPayments, refreshPayments, refreshPendingPayments } = usePayments();
   const confirm = useConfirm();
   const [view, setView] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [showForm, setShowForm] = useState(false);
@@ -60,7 +60,6 @@ export default function DashboardPage() {
     return () => clearInterval(id);
   }, []);
 
-  // Autotransición a PRESENTE cuando el turno ya pasó (excepto cancelados/ausentes)
   useEffect(() => {
     const processStatuses = async () => {
       const current = new Date();
@@ -126,6 +125,31 @@ export default function DashboardPage() {
       .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime));
   }, [appointments, filterPatient, filterStatus, search, windowRange.end, windowRange.start]);
 
+  const paymentStateFor = useMemo(() => {
+    return (appt: Appointment) => {
+      if (!appt.fee) return { color: 'text-elegant-900 dark:text-white', status: 'none' };
+      const completed = payments
+        .filter(p => p.appointmentId === appt.id && p.status === 'completed')
+        .reduce((sum, p) => sum + p.amount, 0);
+      const pending = [...payments, ...pendingPayments]
+        .filter(p => p.appointmentId === appt.id && p.status === 'pending')
+        .reduce((sum, p) => sum + p.amount, 0);
+      const end = combineDateAndTime(appt.date, appt.endTime);
+      const past = end < now;
+
+      if (completed >= (appt.fee || 0)) {
+        return { color: 'text-green-600 dark:text-green-400', status: 'paid' };
+      }
+      if (completed > 0 || pending > 0) {
+        return { color: 'text-amber-500', status: 'partial' };
+      }
+      if (past) {
+        return { color: 'text-red-500', status: 'unpaid' };
+      }
+      return { color: 'text-elegant-900 dark:text-white', status: 'none' };
+    };
+  }, [now, payments, pendingPayments]);
+
   const handleEdit = (appt: Appointment) => {
     setEditingAppointment(appt);
     setShowForm(true);
@@ -177,6 +201,27 @@ export default function DashboardPage() {
     }
   };
 
+  const handleDelete = async (appt: Appointment) => {
+    const confirmed = await confirm({
+      title: 'Eliminar turno',
+      description: `¿Eliminar definitivamente el turno de ${appt.patientName}?`,
+      confirmText: 'Eliminar',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
+
+    try {
+      await deleteAppointment(appt.id);
+      await refreshAppointments();
+      await refreshPayments();
+      await refreshPendingPayments();
+      toast.success('Turno eliminado');
+    } catch (error) {
+      console.error('Error al eliminar turno:', error);
+      toast.error('No se pudo eliminar el turno');
+    }
+  };
+
   const openPaymentDialog = (appt: Appointment) => {
     if (!appt.fee) {
       toast.error('Este turno no tiene honorarios asignados');
@@ -221,7 +266,7 @@ export default function DashboardPage() {
 
       await refreshPayments();
       await refreshPendingPayments();
-      toast.success(isTotal ? 'Pago registrado correctamente' : 'Pago parcial registrado');
+      toast.success(isTotal ? 'Pago registrado con éxito' : 'Pago parcial registrado con éxito');
       setPaymentDialog({ open: false, appointment: undefined, mode: 'total', amount: '' });
     } catch (error) {
       console.error('Error al registrar pago:', error);
@@ -338,7 +383,7 @@ export default function DashboardPage() {
                             <td>{a.patientName}</td>
                             <td>
                               {a.fee ? (
-                                <span className="font-semibold text-green-600 dark:text-green-400">
+                                <span className={`font-semibold ${paymentStateFor(a).color}`}>
                                   ${a.fee.toLocaleString()}
                                 </span>
                               ) : (
@@ -380,6 +425,13 @@ export default function DashboardPage() {
                                 >
                                   <Ban className="w-4 h-4" />
                                 </button>
+                                <button
+                                  onClick={() => handleDelete(a)}
+                                  className="icon-btn-danger"
+                                  aria-label="Eliminar turno"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
                               </div>
                             </td>
                           </tr>
@@ -420,7 +472,7 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300 mb-3">
                           <CalendarDays className="w-4 h-4" />
                           {a.fee ? (
-                            <span className="font-semibold text-green-600 dark:text-green-400">${a.fee.toLocaleString()}</span>
+                            <span className={`font-semibold ${paymentStateFor(a).color}`}>${a.fee.toLocaleString()}</span>
                           ) : (
                             <span className="text-gray-400">Sin honorarios</span>
                           )}
@@ -439,6 +491,12 @@ export default function DashboardPage() {
                             className="btn-danger px-4 py-2.5"
                           >
                             <Ban className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(a)}
+                            className="btn-danger px-4 py-2.5"
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
