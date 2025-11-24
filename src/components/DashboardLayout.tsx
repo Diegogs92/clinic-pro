@@ -5,14 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import GlassNavbar from './GlassNavbar';
 import ThemeToggle from './ThemeToggle';
-import GoogleCalendarToggle from './GoogleCalendarToggle';
 import { Footer } from './Footer';
-import { 
-  LayoutDashboard, 
-  CalendarDays, 
-  Users, 
-  Shield, 
+import {
+  LayoutDashboard,
+  CalendarDays,
+  Users,
+  Shield,
   DollarSign,
+  Building2,
   LogOut,
   Menu,
   X
@@ -32,6 +32,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navItems = [
     { href: '/dashboard', label: 'Inicio', icon: LayoutDashboard },
     { href: '/patients', label: 'Pacientes', icon: Users },
+    { href: '/offices', label: 'Consultorios', icon: Building2 },
     { href: '/insurances', label: 'Obras Sociales', icon: Shield },
     { href: '/fees', label: 'Honorarios', icon: DollarSign },
   ];
@@ -68,7 +69,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="hidden md:flex items-center gap-4">
               <GlassNavbar items={navItems} />
               <div className="flex items-center gap-2">
-                <GoogleCalendarToggle />
                 <ThemeToggle />
                 <button
                   onClick={handleLogout}
@@ -117,7 +117,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 );
               })}
               <div className="flex items-center gap-2 pt-3 border-t border-elegant-200 dark:border-elegant-800 mt-3">
-                <GoogleCalendarToggle />
                 <ThemeToggle />
                 <button
                   onClick={() => {

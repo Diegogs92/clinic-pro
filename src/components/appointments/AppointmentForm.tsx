@@ -14,10 +14,12 @@ import PatientForm from '@/components/patients/PatientForm';
 import { UserPlus } from 'lucide-react';
 import { usePatients } from '@/contexts/PatientsContext';
 import { useAppointments } from '@/contexts/AppointmentsContext';
+import { useOffices } from '@/contexts/OfficesContext';
 
 const schema = z.object({
   patientId: z.string().min(1, 'Selecciona un paciente'),
   patientName: z.string().optional(),
+  officeId: z.string().optional(),
   date: z.string().min(1, 'Fecha requerida'), // ISO date yyyy-MM-dd
   startTime: z.string().min(1, 'Hora inicio requerida'), // HH:mm
   duration: z.coerce.number().refine(val => [45, 60, 90, 120, 160].includes(val), {
@@ -40,9 +42,10 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const { patients, refreshPatients } = usePatients();
+  const { offices } = useOffices();
   const { refreshAppointments } = useAppointments();
   const [showQuickPatient, setShowQuickPatient] = useState(false);
-  const { syncAppointment, syncEnabled, isConnected } = useCalendarSync();
+  const { syncAppointment } = useCalendarSync();
   const toast = useToast();
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<AppointmentFormValues>({
     resolver: zodResolver(schema),
@@ -85,12 +88,16 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
         updatedAt: '',
       } as any;
 
+      // Obtener el colorId del consultorio si existe
+      const office = offices.find(o => o.id === payload.officeId);
+      const officeColorId = office?.colorId;
+
       if (initialData) {
         await updateAppointment(initialData.id, payload);
         const updated = { ...payload, id: initialData.id };
 
-        if (syncEnabled && initialData.googleCalendarEventId) {
-          await syncAppointment(updated, 'update', initialData.googleCalendarEventId);
+        if (initialData.googleCalendarEventId) {
+          await syncAppointment(updated, 'update', initialData.googleCalendarEventId, officeColorId);
         }
 
         await refreshAppointments();
@@ -100,12 +107,10 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
         const id = await createAppointment(payload);
         const created = { ...payload, id };
 
-        if (syncEnabled) {
-          const eventId = await syncAppointment(created, 'create');
-          if (eventId) {
-            await updateAppointment(id, { googleCalendarEventId: eventId });
-            toast.success('Turno sincronizado con Google Calendar');
-          }
+        const eventId = await syncAppointment(created, 'create', undefined, officeColorId);
+        if (eventId) {
+          await updateAppointment(id, { googleCalendarEventId: eventId });
+          toast.success('Turno sincronizado con Google Calendar');
         }
 
         await refreshAppointments();
@@ -159,12 +164,15 @@ export default function AppointmentForm({ initialData, onCreated, onCancel }: Pr
           {errors.patientId && <p className="text-red-600 text-xs mt-1">{errors.patientId.message as string}</p>}
         </div>
 
-        {syncEnabled && isConnected && (
-          <div className="text-[11px] text-green-600 dark:text-green-400 flex items-center gap-2 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg">
-            <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-            Sincronización con Google Calendar activada
-          </div>
-        )}
+        <div>
+          <label className="block text-sm font-semibold text-primary-dark dark:text-white mb-1">Consultorio</label>
+          <select className="input-field text-sm py-2" {...register('officeId')}>
+            <option value="">Sin consultorio</option>
+            {offices.map(office => (
+              <option key={office.id} value={office.id}>{office.name} - {office.address}</option>
+            ))}
+          </select>
+        </div>
 
         <div className="grid md:grid-cols-3 gap-3">
           <div>

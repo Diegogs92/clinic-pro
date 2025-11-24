@@ -9,6 +9,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { PatientsProvider } from '@/contexts/PatientsContext';
 import { AppointmentsProvider } from '@/contexts/AppointmentsContext';
 import { PaymentsProvider } from '@/contexts/PaymentsContext';
+import { OfficesProvider } from '@/contexts/OfficesContext';
 import { CalendarSyncProvider } from '@/contexts/CalendarSyncContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import GlobalLoader from '@/components/GlobalLoader';
@@ -47,14 +48,16 @@ export default function RootLayout({
                 <ToastProvider>
                   <ConfirmProvider>
                     <PatientsProvider>
-                      <AppointmentsProvider>
-                        <PaymentsProvider>
-                          <CalendarSyncProvider>
-                            <GlobalLoader />
-                            {children}
-                          </CalendarSyncProvider>
-                        </PaymentsProvider>
-                      </AppointmentsProvider>
+                      <OfficesProvider>
+                        <AppointmentsProvider>
+                          <PaymentsProvider>
+                            <CalendarSyncProvider>
+                              <GlobalLoader />
+                              {children}
+                            </CalendarSyncProvider>
+                          </PaymentsProvider>
+                        </AppointmentsProvider>
+                      </OfficesProvider>
                     </PatientsProvider>
                   </ConfirmProvider>
                 </ToastProvider>

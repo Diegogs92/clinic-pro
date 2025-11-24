@@ -6,15 +6,11 @@ import { Appointment } from '@/types';
 
 interface CalendarSyncContextType {
   isConnected: boolean;
-  syncEnabled: boolean;
-  toggleSync: () => void;
-  syncAppointment: (appointment: Appointment, action: 'create' | 'update' | 'delete', eventId?: string) => Promise<string | null>;
+  syncAppointment: (appointment: Appointment, action: 'create' | 'update' | 'delete', eventId?: string, officeColorId?: string) => Promise<string | null>;
 }
 
 const CalendarSyncContext = createContext<CalendarSyncContextType>({
   isConnected: false,
-  syncEnabled: false,
-  toggleSync: () => {},
   syncAppointment: async () => null,
 });
 
@@ -27,54 +23,47 @@ interface Props {
 }
 
 export function CalendarSyncProvider({ children }: Props) {
-  const { user } = useAuth();
-  const [syncEnabled, setSyncEnabled] = useState(false);
+  const { user, googleAccessToken } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Si el usuario está autenticado, consideramos que está "conectado" para Google Calendar
-    if (user) {
+    // Si el usuario está autenticado con Google, está "conectado" para Calendar
+    if (user && googleAccessToken) {
       setIsConnected(true);
-      // Cargar preferencia de sincronización del localStorage
-      const saved = localStorage.getItem('calendar_sync_enabled');
-      setSyncEnabled(saved === 'true');
     } else {
       setIsConnected(false);
-      setSyncEnabled(false);
     }
-  }, [user]);
-
-  const toggleSync = () => {
-    const newValue = !syncEnabled;
-    setSyncEnabled(newValue);
-    localStorage.setItem('calendar_sync_enabled', String(newValue));
-  };
+  }, [user, googleAccessToken]);
 
   const syncAppointment = async (
     appointment: Appointment,
     action: 'create' | 'update' | 'delete',
-    eventId?: string
+    eventId?: string,
+    officeColorId?: string
   ): Promise<string | null> => {
-      if (!syncEnabled || !isConnected) {
+    if (!isConnected || !googleAccessToken) {
       return null;
     }
 
     try {
-        const response = await fetch('/api/calendar/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            appointment: { ...appointment, googleCalendarEventId: eventId },
-            action,
-          }),
-        });
+      const response = await fetch('/api/calendar/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appointment: { ...appointment, googleCalendarEventId: eventId },
+          action,
+          accessToken: googleAccessToken,
+          officeColorId,
+        }),
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to sync');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to sync');
       }
 
-        const data = await response.json();
-        return data.eventId;
+      const data = await response.json();
+      return data.eventId;
     } catch (error) {
       console.error('Error syncing appointment:', error);
       return null;
@@ -85,8 +74,6 @@ export function CalendarSyncProvider({ children }: Props) {
     <CalendarSyncContext.Provider
       value={{
         isConnected,
-        syncEnabled,
-        toggleSync,
         syncAppointment,
       }}
     >

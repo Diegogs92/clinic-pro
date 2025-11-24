@@ -39,11 +39,24 @@ export interface MedicalHistory {
   createdAt: string;
 }
 
+// Office types
+export interface Office {
+  id: string;
+  name: string;
+  address: string;
+  googleMapsUrl?: string;
+  colorId: string; // Google Calendar color ID (1-11)
+  createdAt: string;
+  updatedAt: string;
+  userId: string; // Professional ID
+}
+
 // Appointment types
 export interface Appointment {
   id: string;
   patientId: string;
   patientName: string;
+  officeId?: string; // Consultorio ID
   date: string;
   startTime: string;
   endTime: string;

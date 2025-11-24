@@ -1,6 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { google } from 'googleapis';
 import { Appointment } from '@/types';
 import { combineDateAndTime } from '@/lib/dateUtils';
@@ -11,16 +9,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const session = await getServerSession(req, res, authOptions);
-    
-    if (!session?.accessToken) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
-
-    const { appointment, action } = req.body as {
+    const { appointment, action, accessToken, officeColorId } = req.body as {
       appointment: Appointment;
       action: 'create' | 'update' | 'delete';
+      accessToken?: string;
+      officeColorId?: string;
     };
+
+    if (!accessToken) {
+      return res.status(401).json({ error: 'Access token requerido' });
+    }
 
     // Initialize OAuth2 client
     const oauth2Client = new google.auth.OAuth2(
@@ -29,8 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     oauth2Client.setCredentials({
-      access_token: session.accessToken,
-      refresh_token: session.refreshToken,
+      access_token: accessToken,
     });
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
@@ -53,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const startDateTime = combineDateAndTime(dateStr, appointment.startTime);
     const endDateTime = combineDateAndTime(dateStr, appointment.endTime);
 
-    const event = {
+    const event: any = {
       summary: `Turno: ${appointment.patientName || 'Sin nombre'}`,
       description: appointment.notes || '',
       start: {
@@ -65,6 +62,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         timeZone: 'America/Argentina/Buenos_Aires',
       },
     };
+
+    // Agregar color si se especificó el consultorio
+    if (officeColorId) {
+      event.colorId = officeColorId;
+    }
 
     if (action === 'update' && appointment.googleCalendarEventId) {
       const response = await calendar.events.update({
