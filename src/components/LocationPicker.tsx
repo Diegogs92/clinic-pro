@@ -28,7 +28,18 @@ export default function LocationPicker({ latitude, longitude, address, onLocatio
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries,
+    language: 'es',
+    region: 'AR',
   });
+
+  // Debug: Log API key status
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+      console.error('⚠️ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY no está configurada');
+    } else {
+      console.log('✅ Google Maps API Key configurada');
+    }
+  }, []);
 
   useEffect(() => {
     if (latitude && longitude) {
@@ -111,13 +122,18 @@ export default function LocationPicker({ latitude, longitude, address, onLocatio
 
   const onAutocompleteLoad = (autocomplete: google.maps.places.Autocomplete) => {
     autocompleteRef.current = autocomplete;
+    console.log('✅ Autocomplete cargado correctamente');
   };
 
   if (loadError) {
+    console.error('❌ Error al cargar Google Maps:', loadError);
     return (
       <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg text-center">
-        <p className="text-xs text-red-600 dark:text-red-400">
-          Error al cargar Google Maps. Verifica que Places API esté habilitada.
+        <p className="text-xs text-red-600 dark:text-red-400 font-semibold mb-1">
+          Error al cargar Google Maps
+        </p>
+        <p className="text-xs text-red-500 dark:text-red-400">
+          {loadError.message || 'Verifica que Places API esté habilitada y configurada correctamente'}
         </p>
       </div>
     );
