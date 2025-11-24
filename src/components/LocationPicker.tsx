@@ -147,7 +147,7 @@ export default function LocationPicker({ latitude, longitude, address, onLocatio
 
   return (
     <div className="space-y-2">
-      <div>
+      <div className="relative z-[10000]">
         <label className="block text-xs font-medium mb-1">Buscar dirección</label>
         <Autocomplete
           onLoad={onAutocompleteLoad}
@@ -160,7 +160,7 @@ export default function LocationPicker({ latitude, longitude, address, onLocatio
           <input
             type="text"
             defaultValue={address}
-            className="input-field text-sm"
+            className="input-field text-sm relative z-[10000]"
             placeholder="Ej: Av. Corrientes 1234, CABA"
           />
         </Autocomplete>

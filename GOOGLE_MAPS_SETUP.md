@@ -22,16 +22,25 @@ Ve a "APIs y servicios" > "Biblioteca" y habilita:
 2. Haz clic en "Crear credenciales" > "Clave de API"
 3. Se generará tu API key
 
-### 5. Configurar restricciones (Recomendado)
-Para mayor seguridad:
+### 5. Configurar restricciones (MUY IMPORTANTE)
+Para que funcione correctamente:
 1. Haz clic en tu API key recién creada
 2. En "Restricciones de aplicación", selecciona "Referentes HTTP (sitios web)"
-3. Agrega tus dominios:
-   - `localhost:*` (para desarrollo)
-   - `tu-dominio.vercel.app/*` (para producción)
+3. Agrega EXACTAMENTE estos dominios (uno por línea):
+   ```
+   http://localhost:*/*
+   https://localhost:*/*
+   http://127.0.0.1:*/*
+   https://127.0.0.1:*/*
+   https://*.vercel.app/*
+   ```
 4. En "Restricciones de API", selecciona "Restringir clave" y elige:
    - Maps JavaScript API
-   - Geocoding API (si la habilitaste)
+   - Geocoding API
+   - Places API
+5. Haz clic en "Guardar"
+
+**NOTA**: Si ves el error "Esta página no puede cargar Google Maps correctamente", es porque falta agregar el dominio a las restricciones o no has habilitado Places API.
 
 ### 6. Agregar la API key a tu proyecto
 
