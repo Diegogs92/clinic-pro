@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { GoogleMap, LoadScript, Marker, Autocomplete } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, Marker, Autocomplete } from '@react-google-maps/api';
 import { MapPin, Loader2 } from 'lucide-react';
 
 interface LocationPickerProps {
@@ -17,13 +17,18 @@ const mapContainerStyle = {
   borderRadius: '8px',
 };
 
-const libraries: ("places")[] = ["places"];
+const libraries: ("places" | "geometry")[] = ["places"];
 
 export default function LocationPicker({ latitude, longitude, address, onLocationChange }: LocationPickerProps) {
   const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    libraries,
+  });
 
   useEffect(() => {
     if (latitude && longitude) {
@@ -108,14 +113,22 @@ export default function LocationPicker({ latitude, longitude, address, onLocatio
     autocompleteRef.current = autocomplete;
   };
 
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+  if (loadError) {
+    return (
+      <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg text-center">
+        <p className="text-xs text-red-600 dark:text-red-400">
+          Error al cargar Google Maps. Verifica que Places API esté habilitada.
+        </p>
+      </div>
+    );
+  }
 
-  if (!apiKey) {
+  if (!isLoaded) {
     return (
       <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg text-center">
-        <MapPin className="w-6 h-6 mx-auto mb-1 text-gray-400" />
+        <Loader2 className="w-6 h-6 mx-auto mb-1 text-primary animate-spin" />
         <p className="text-xs text-gray-600 dark:text-gray-400">
-          Google Maps API key no configurada
+          Cargando Google Maps...
         </p>
       </div>
     );
@@ -133,61 +146,63 @@ export default function LocationPicker({ latitude, longitude, address, onLocatio
   }
 
   return (
-    <LoadScript googleMapsApiKey={apiKey} libraries={libraries}>
-      <div className="space-y-2">
-        <div>
-          <label className="block text-xs font-medium mb-1">Buscar dirección</label>
-          <Autocomplete
-            onLoad={onAutocompleteLoad}
-            onPlaceChanged={onPlaceChanged}
-          >
-            <input
-              type="text"
-              defaultValue={address}
-              className="input-field text-sm"
-              placeholder="Buscar dirección..."
-            />
-          </Autocomplete>
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-medium">Mapa</label>
-            <button
-              type="button"
-              onClick={getCurrentLocation}
-              disabled={isLoadingLocation}
-              className="text-xs text-primary hover:text-primary-dark font-medium flex items-center gap-1 disabled:opacity-50"
-            >
-              {isLoadingLocation ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <MapPin className="w-3 h-3" />
-              )}
-              Mi ubicación
-            </button>
-          </div>
-
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={center}
-            zoom={16}
-            onClick={onMapClick}
-            options={{
-              streetViewControl: false,
-              mapTypeControl: false,
-              fullscreenControl: false,
-              zoomControl: true,
-            }}
-          >
-            {markerPosition && <Marker position={markerPosition} />}
-          </GoogleMap>
-
-          <p className="text-xs text-gray-500 mt-1">
-            Busca una dirección o haz clic en el mapa
-          </p>
-        </div>
+    <div className="space-y-2">
+      <div>
+        <label className="block text-xs font-medium mb-1">Buscar dirección</label>
+        <Autocomplete
+          onLoad={onAutocompleteLoad}
+          onPlaceChanged={onPlaceChanged}
+          options={{
+            componentRestrictions: { country: 'ar' },
+            fields: ['formatted_address', 'geometry', 'name'],
+          }}
+        >
+          <input
+            type="text"
+            defaultValue={address}
+            className="input-field text-sm"
+            placeholder="Ej: Av. Corrientes 1234, CABA"
+          />
+        </Autocomplete>
       </div>
-    </LoadScript>
+
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-xs font-medium">Mapa</label>
+          <button
+            type="button"
+            onClick={getCurrentLocation}
+            disabled={isLoadingLocation}
+            className="text-xs text-primary hover:text-primary-dark font-medium flex items-center gap-1 disabled:opacity-50"
+          >
+            {isLoadingLocation ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <MapPin className="w-3 h-3" />
+            )}
+            Mi ubicación
+          </button>
+        </div>
+
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={center}
+          zoom={16}
+          onClick={onMapClick}
+          options={{
+            streetViewControl: false,
+            mapTypeControl: false,
+            fullscreenControl: false,
+            zoomControl: true,
+          }}
+        >
+          {markerPosition && <Marker position={markerPosition} />}
+        </GoogleMap>
+
+        <p className="text-xs text-gray-500 mt-1">
+          Busca una dirección o haz clic en el mapa
+        </p>
+      </div>
+    </div>
   );
 }

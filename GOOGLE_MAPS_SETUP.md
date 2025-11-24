@@ -13,8 +13,9 @@ Visita: https://console.cloud.google.com/
 
 ### 3. Habilitar las APIs necesarias
 Ve a "APIs y servicios" > "Biblioteca" y habilita:
-- **Maps JavaScript API**
-- **Geocoding API** (opcional, para búsquedas por dirección)
+- **Maps JavaScript API** (REQUERIDO)
+- **Geocoding API** (REQUERIDO - para convertir coordenadas en direcciones)
+- **Places API** (REQUERIDO - para autocomplete de direcciones)
 
 ### 4. Crear credenciales
 1. Ve a "APIs y servicios" > "Credenciales"
