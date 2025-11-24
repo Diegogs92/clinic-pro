@@ -3,15 +3,20 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Appointment } from '@/types';
+import { getTokenInfo, clearTokenInfo } from '@/lib/tokenRefresh';
 
 interface CalendarSyncContextType {
   isConnected: boolean;
+  isTokenExpired: boolean;
   syncAppointment: (appointment: Appointment, action: 'create' | 'update' | 'delete', eventId?: string, officeColorId?: string) => Promise<string | null>;
+  checkTokenExpiration: () => boolean;
 }
 
 const CalendarSyncContext = createContext<CalendarSyncContextType>({
   isConnected: false,
+  isTokenExpired: false,
   syncAppointment: async () => null,
+  checkTokenExpiration: () => false,
 });
 
 export function useCalendarSync() {
@@ -25,15 +30,39 @@ interface Props {
 export function CalendarSyncProvider({ children }: Props) {
   const { user, googleAccessToken } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
+  const [isTokenExpired, setIsTokenExpired] = useState(false);
 
   useEffect(() => {
     // Si el usuario está autenticado con Google, está "conectado" para Calendar
     if (user && googleAccessToken) {
       setIsConnected(true);
+      // Verificar si el token está expirado
+      checkTokenExpiration();
     } else {
       setIsConnected(false);
+      setIsTokenExpired(false);
     }
   }, [user, googleAccessToken]);
+
+  const checkTokenExpiration = (): boolean => {
+    const tokenInfo = getTokenInfo();
+    if (!tokenInfo) {
+      setIsTokenExpired(false);
+      return false;
+    }
+
+    const now = Date.now();
+    const expired = tokenInfo.expiresAt <= now;
+
+    if (expired) {
+      console.warn('[CalendarSync] Token expirado. Necesitas volver a iniciar sesión.');
+      setIsTokenExpired(true);
+      return true;
+    }
+
+    setIsTokenExpired(false);
+    return false;
+  };
 
   const syncAppointment = async (
     appointment: Appointment,
@@ -68,6 +97,14 @@ export function CalendarSyncProvider({ children }: Props) {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('[CalendarSync] Error del servidor:', errorData);
+
+        // Si es un error 401 (Unauthorized), el token expiró
+        if (response.status === 401) {
+          console.warn('[CalendarSync] Token expirado (401). Limpiando token y marcando como expirado.');
+          clearTokenInfo();
+          setIsTokenExpired(true);
+        }
+
         throw new Error(errorData.error || 'Failed to sync');
       }
 
@@ -84,7 +121,9 @@ export function CalendarSyncProvider({ children }: Props) {
     <CalendarSyncContext.Provider
       value={{
         isConnected,
+        isTokenExpired,
         syncAppointment,
+        checkTokenExpiration,
       }}
     >
       {children}

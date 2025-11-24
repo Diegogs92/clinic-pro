@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import GlassNavbar from './GlassNavbar';
 import ThemeToggle from './ThemeToggle';
 import { Footer } from './Footer';
+import TokenExpirationBanner from './TokenExpirationBanner';
 import {
   LayoutDashboard,
   CalendarDays,
@@ -44,6 +45,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-pearl via-white to-secondary-lighter/20 dark:from-elegant-950 dark:via-elegant-900 dark:to-elegant-950">
+      {/* Token Expiration Banner */}
+      <TokenExpirationBanner />
+
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-elegant-900/80 border-b border-elegant-200 dark:border-elegant-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

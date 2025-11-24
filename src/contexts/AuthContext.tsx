@@ -141,8 +141,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (credential?.accessToken) {
         logger.log('[AuthContext] Access token obtenido');
         setGoogleAccessToken(credential.accessToken);
-        // Guardar en localStorage para persistencia
+        // Guardar en localStorage con tiempo de expiración (1 hora por defecto)
+        const expiresAt = Date.now() + (3600 * 1000); // 1 hora en ms
         localStorage.setItem('google_access_token', credential.accessToken);
+        localStorage.setItem('google_token_expires_at', expiresAt.toString());
+        logger.log('[AuthContext] Token guardado, expira en 1 hora');
       }
     } catch (e: any) {
       logger.error('[AuthContext] Error en signInWithGoogle:', e);
