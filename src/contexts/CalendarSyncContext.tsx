@@ -41,9 +41,17 @@ export function CalendarSyncProvider({ children }: Props) {
     eventId?: string,
     officeColorId?: string
   ): Promise<string | null> => {
-    if (!isConnected || !googleAccessToken) {
+    if (!isConnected) {
+      console.warn('[CalendarSync] No conectado a Google Calendar');
       return null;
     }
+
+    if (!googleAccessToken) {
+      console.warn('[CalendarSync] No hay access token de Google. Inicia sesión con Google para sincronizar.');
+      return null;
+    }
+
+    console.log('[CalendarSync] Iniciando sincronización:', { action, officeColorId });
 
     try {
       const response = await fetch('/api/calendar/sync', {
@@ -59,13 +67,15 @@ export function CalendarSyncProvider({ children }: Props) {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('[CalendarSync] Error del servidor:', errorData);
         throw new Error(errorData.error || 'Failed to sync');
       }
 
       const data = await response.json();
+      console.log('[CalendarSync] ✅ Sincronizado exitosamente. Event ID:', data.eventId);
       return data.eventId;
     } catch (error) {
-      console.error('Error syncing appointment:', error);
+      console.error('[CalendarSync] Error syncing appointment:', error);
       return null;
     }
   };
