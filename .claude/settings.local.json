@@ -19,7 +19,19 @@
       "Bash(start https://console.cloud.google.com/apis/credentials/consent)",
       "Bash(git push:*)",
       "Bash(git restore:*)",
-      "Bash(curl -s https://clinical-ar.vercel.app)"
+      "Bash(curl -s https://clinical-ar.vercel.app)",
+      "Bash(start http://localhost:3000)",
+      "Bash(start http://localhost:3001)",
+      "Bash(findstr:*)",
+      "Bash(.env.local.example)",
+      "Bash(.env.local)",
+      "Bash(start http://localhost:3003)",
+      "Bash(del nul 2)",
+      "Bash(NUL)",
+      "Bash(del NUL 2)",
+      "Bash(netstat:*)",
+      "Bash(taskkill /F /PID 41944)",
+      "Bash(taskkill //F //PID 41944)"
     ],
     "deny": [],
     "ask": []

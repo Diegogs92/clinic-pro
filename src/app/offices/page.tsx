@@ -33,7 +33,8 @@ const CALENDAR_COLORS = [
 interface OfficeFormData {
   name: string;
   address: string;
-  googleMapsUrl: string;
+  latitude: string;
+  longitude: string;
   colorId: string;
 }
 
@@ -49,7 +50,8 @@ export default function OfficesPage() {
     defaultValues: {
       name: '',
       address: '',
-      googleMapsUrl: '',
+      latitude: '',
+      longitude: '',
       colorId: '1',
     }
   });
@@ -58,7 +60,8 @@ export default function OfficesPage() {
     setEditingOffice(office);
     setValue('name', office.name);
     setValue('address', office.address);
-    setValue('googleMapsUrl', office.googleMapsUrl || '');
+    setValue('latitude', office.latitude?.toString() || '');
+    setValue('longitude', office.longitude?.toString() || '');
     setValue('colorId', office.colorId);
     setShowModal(true);
   };
@@ -73,11 +76,20 @@ export default function OfficesPage() {
     if (!user) return;
 
     try {
+      const officeData = {
+        name: data.name,
+        address: data.address,
+        latitude: data.latitude ? parseFloat(data.latitude) : undefined,
+        longitude: data.longitude ? parseFloat(data.longitude) : undefined,
+        colorId: data.colorId,
+        userId: user.uid,
+      };
+
       if (editingOffice) {
-        await updateOffice(editingOffice.id, data);
+        await updateOffice(editingOffice.id, officeData);
         toast.success('Consultorio actualizado');
       } else {
-        await createOffice({ ...data, userId: user.uid });
+        await createOffice(officeData);
         toast.success('Consultorio creado');
       }
       await refreshOffices();
@@ -137,14 +149,19 @@ export default function OfficesPage() {
                 <tr>
                   <th>Color</th>
                   <th>Nombre</th>
-                  <th>Direcci\u00f3n</th>
-                  <th>Maps</th>
+                  <th>Dirección</th>
+                  <th>Ubicación</th>
                   <th className="text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {offices.map(office => {
                   const color = getColorById(office.colorId);
+                  const hasLocation = office.latitude && office.longitude;
+                  const mapsUrl = hasLocation
+                    ? `https://www.google.com/maps?q=${office.latitude},${office.longitude}`
+                    : null;
+
                   return (
                     <tr key={office.id}>
                       <td>
@@ -159,12 +176,13 @@ export default function OfficesPage() {
                       <td className="font-medium">{office.name}</td>
                       <td>{office.address}</td>
                       <td>
-                        {office.googleMapsUrl ? (
+                        {mapsUrl ? (
                           <a
-                            href={office.googleMapsUrl}
+                            href={mapsUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:text-primary-dark flex items-center gap-1"
+                            title={`${office.latitude}, ${office.longitude}`}
                           >
                             <MapPin className="w-4 h-4" />
                             <ExternalLink className="w-3 h-3" />
@@ -220,10 +238,10 @@ export default function OfficesPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Direcci\u00f3n *</label>
+              <label className="block text-sm font-medium mb-1">Dirección *</label>
               <input
                 type="text"
-                {...register('address', { required: 'La direcci\u00f3n es requerida' })}
+                {...register('address', { required: 'La dirección es requerida' })}
                 className="input-field"
                 placeholder="Ej: Av. Corrientes 1234, CABA"
               />
@@ -231,14 +249,53 @@ export default function OfficesPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Link de Google Maps</label>
-              <input
-                type="url"
-                {...register('googleMapsUrl')}
-                className="input-field"
-                placeholder="https://maps.google.com/..."
-              />
-              <p className="text-xs text-gray-500 mt-1">Opcional: pega el link de Google Maps de tu consultorio</p>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">Ubicación (opcional)</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if ('geolocation' in navigator) {
+                      navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                          setValue('latitude', position.coords.latitude.toString());
+                          setValue('longitude', position.coords.longitude.toString());
+                          toast.success('Ubicación obtenida');
+                        },
+                        (error) => {
+                          toast.error('No se pudo obtener la ubicación');
+                          console.error(error);
+                        }
+                      );
+                    } else {
+                      toast.error('Geolocalización no disponible');
+                    }
+                  }}
+                  className="text-xs text-primary hover:text-primary-dark font-medium"
+                >
+                  Usar ubicación actual
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <input
+                    type="number"
+                    step="any"
+                    {...register('latitude')}
+                    className="input-field text-sm"
+                    placeholder="Latitud"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    step="any"
+                    {...register('longitude')}
+                    className="input-field text-sm"
+                    placeholder="Longitud"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Usa tu ubicación actual o ingresa las coordenadas manualmente</p>
             </div>
 
             <div>

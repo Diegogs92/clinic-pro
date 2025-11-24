@@ -68,10 +68,10 @@ export default function InsurancesPage() {
             <table className="table-skin">
               <thead>
                 <tr>
-                  <th>C?digo</th>
+                  <th>Código</th>
                   <th>Sigla</th>
                   <th>Contacto</th>
-                  <th>Denominaci?n</th>
+                  <th>Denominación</th>
                   <th>Pacientes</th>
                   <th className="text-right">Acciones</th>
                 </tr>

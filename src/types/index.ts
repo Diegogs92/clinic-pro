@@ -44,7 +44,8 @@ export interface Office {
   id: string;
   name: string;
   address: string;
-  googleMapsUrl?: string;
+  latitude?: number;
+  longitude?: number;
   colorId: string; // Google Calendar color ID (1-11)
   createdAt: string;
   updatedAt: string;
