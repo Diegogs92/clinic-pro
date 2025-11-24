@@ -24,8 +24,8 @@ export default function LocationPicker({ latitude, longitude, address, onLocatio
   const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [inputValue, setInputValue] = useState(address || '');
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const autocompleteElementRef = useRef<any>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -53,31 +53,61 @@ export default function LocationPicker({ latitude, longitude, address, onLocatio
     }
   }, []);
 
-  // Initialize autocomplete when Google Maps is loaded
+  // Initialize new PlacesAutocomplete component
   useEffect(() => {
-    if (isLoaded && inputRef.current && !autocompleteRef.current) {
+    if (isLoaded && inputContainerRef.current && !autocompleteElementRef.current) {
       try {
-        const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
-          componentRestrictions: { country: 'ar' },
-          fields: ['formatted_address', 'geometry', 'name'],
-        });
+        // Load the new Places Library
+        const loadPlacesLibrary = async () => {
+          // @ts-ignore - using new Google Places API
+          await google.maps.importLibrary("places");
 
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (place.geometry?.location) {
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
-            const newPos = { lat, lng };
-            setCenter(newPos);
-            setMarkerPosition(newPos);
-            const address = place.formatted_address || '';
-            setInputValue(address);
-            onLocationChange(lat, lng, address);
+          // Create the autocomplete element programmatically
+          const autocompleteInput = document.createElement('input');
+          autocompleteInput.type = 'text';
+          autocompleteInput.value = inputValue;
+          autocompleteInput.placeholder = 'Ej: Av. Corrientes 1234, CABA';
+          autocompleteInput.className = 'input-field text-sm relative z-[10000] w-full';
+
+          // Replace the input container content
+          if (inputContainerRef.current) {
+            inputContainerRef.current.innerHTML = '';
+            inputContainerRef.current.appendChild(autocompleteInput);
           }
-        });
 
-        autocompleteRef.current = autocomplete;
-        console.log('✅ Autocomplete nativo inicializado correctamente');
+          // Initialize autocomplete
+          const autocomplete = new google.maps.places.Autocomplete(autocompleteInput, {
+            componentRestrictions: { country: 'ar' },
+            fields: ['formatted_address', 'geometry', 'name'],
+            types: ['address'],
+          });
+
+          autocomplete.addListener('place_changed', () => {
+            const place = autocomplete.getPlace();
+            if (place.geometry?.location) {
+              const lat = place.geometry.location.lat();
+              const lng = place.geometry.location.lng();
+              const newPos = { lat, lng };
+              setCenter(newPos);
+              setMarkerPosition(newPos);
+              const formattedAddress = place.formatted_address || '';
+              setInputValue(formattedAddress);
+              onLocationChange(lat, lng, formattedAddress);
+            }
+          });
+
+          // Update state when user types
+          autocompleteInput.addEventListener('input', (e) => {
+            setInputValue((e.target as HTMLInputElement).value);
+          });
+
+          autocompleteElementRef.current = autocomplete;
+          console.log('✅ Places Autocomplete inicializado correctamente (nueva API)');
+        };
+
+        loadPlacesLibrary().catch((error) => {
+          console.error('❌ Error al cargar Places Library:', error);
+        });
       } catch (error) {
         console.error('❌ Error al inicializar autocomplete:', error);
       }
@@ -179,14 +209,9 @@ export default function LocationPicker({ latitude, longitude, address, onLocatio
     <div className="space-y-2">
       <div className="relative z-[10000]">
         <label className="block text-xs font-medium mb-1">Buscar dirección</label>
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          className="input-field text-sm relative z-[10000]"
-          placeholder="Ej: Av. Corrientes 1234, CABA"
-        />
+        <div ref={inputContainerRef} className="w-full">
+          {/* El input se creará dinámicamente aquí */}
+        </div>
       </div>
 
       <div>
