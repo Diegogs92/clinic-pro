@@ -89,6 +89,10 @@ service cloud.firestore {
       allow create: if signedIn();
       allow read, update, delete: if signedIn();
     }
+    match /offices/{id} {
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isOwner(resource.data.userId);
+    }
   }
 }
 \`\`\`
@@ -109,6 +113,10 @@ service cloud.firestore {
 3. **MedicalHistory (historial médico):**
    - Colección: `medicalHistory`
    - Campos: `patientId` (Ascending), `date` (Descending)
+
+4. **Offices (consultorios):**
+   - Colección: `offices`
+   - Campos: `userId` (Ascending)
 
 **Cómo crear índices:**
 - Ve a Firebase Console > Firestore Database > Indexes
