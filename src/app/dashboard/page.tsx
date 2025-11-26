@@ -410,13 +410,13 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {appointmentsLoading  (
+            {appointmentsLoading ? (
               <div className="flex flex-col items-center justify-center py-12 text-primary dark:text-white">
                 <ECGLoader />
                 <p className="mt-4 text-sm">Cargando turnos...</p>
               </div>
-            ) : filtered.length === 0  (
-              <p className="text-black dark:text-white">No hay turnos en el perAodo seleccionado.</p>
+            ) : filtered.length === 0 ? (
+              <p className="text-black dark:text-white">No hay turnos en el periodo seleccionado.</p>
             ) : (
               <>
                 <div className="hidden md:block overflow-x-auto">
