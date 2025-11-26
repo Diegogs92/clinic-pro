@@ -284,8 +284,8 @@ export default function DashboardPage() {
       return;
     }
 
-    const isTotal = appt.fee  amountNum >= appt.fee : true;
-    const status: 'completed' | 'pending' = isTotal  'completed' : 'pending';
+    const isTotal = appt.fee ? amountNum >= appt.fee : true;
+    const status: 'completed' | 'pending' = isTotal ? 'completed' : 'pending';
     console.log('[submitPayment] Es pago total', isTotal, 'Status:', status);
 
     try {
@@ -443,14 +443,14 @@ export default function DashboardPage() {
                             <td>{a.startTime} - {a.endTime}</td>
                             <td>{a.patientName}</td>
                             <td>
-                              {office  (
+                              {office ? (
                                 <span className="text-sm text-gray-600 dark:text-gray-400">{office.name}</span>
                               ) : (
                                 <span className="text-gray-400 text-xs">-</span>
                               )}
                             </td>
                             <td>
-                              {a.fee  (
+                              {a.fee ? (
                                 <span className="font-semibold text-elegant-900 dark:text-white">
                                   ${a.fee.toLocaleString()}
                                 </span>
@@ -460,9 +460,9 @@ export default function DashboardPage() {
                             </td>
                             <td>
                               <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                                a.status === 'completed'  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                                a.status === 'cancelled'  'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                                a.status === 'no-show'  'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
+                                a.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                a.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                                a.status === 'no-show' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
                                 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                               }`}>
                                 {translateAppointmentStatus(a.status)}
@@ -473,9 +473,15 @@ export default function DashboardPage() {
                                 <button
                                   onClick={() => openPaymentDialog(a)}
                                   disabled={!a.fee}
-                                  className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${paymentStateFor(a).status === 'paid'  'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20' : paymentStateFor(a).status === 'partial'  'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20' : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'}`}
+                                  className={`p-1.5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+                                    paymentStateFor(a).status === 'paid'
+                                      ? 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                                      : paymentStateFor(a).status === 'partial'
+                                        ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+                                        : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+                                  }`}
                                   aria-label="Registrar pago"
-                                  title={a.fee && paymentStateFor(a).remainingAmount > 0  `Pendiente: $${paymentStateFor(a).remainingAmount.toLocaleString()}` : 'Pago completo'}
+                                  title={a.fee && paymentStateFor(a).remainingAmount > 0 ? `Pendiente: $${paymentStateFor(a).remainingAmount.toLocaleString()}` : 'Pago completo'}
                                 >
                                   <DollarSign className="w-4 h-4" />
                                 </button>
@@ -509,7 +515,7 @@ export default function DashboardPage() {
                   </table>
                 </div>
 
-                <div className="md:hidden space-y-3">
+                <div className="md:hidden space-y-4">
                   {filtered.map(a => {
                     const d = new Date(a.date);
                     const fecha = d.toLocaleDateString();
@@ -517,91 +523,97 @@ export default function DashboardPage() {
                     const paymentState = paymentStateFor(a);
                     const paymentLabel =
                       paymentState.status === 'paid'
-                         'Pagado'
+                        ? 'Pagado'
                         : paymentState.status === 'partial'
-                           `Pendiente $${paymentState.remainingAmount.toLocaleString()}`
+                          ? `Pendiente $${paymentState.remainingAmount.toLocaleString()}`
                           : a.fee
-                             `Por cobrar $${(paymentState.remainingAmount || a.fee).toLocaleString()}`
+                            ? `Por cobrar $${(paymentState.remainingAmount || a.fee).toLocaleString()}`
                             : 'Sin honorarios';
                     const paymentTone =
                       paymentState.status === 'paid'
-                         'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200'
                         : paymentState.status === 'partial'
-                           'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200'
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200'
                           : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-200';
                     return (
                       <div
                         key={a.id}
-                        className="relative overflow-hidden bg-white/95 dark:bg-[#18181b] border border-secondary-lighter/80 dark:border-gray-700 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all"
+                        className="relative overflow-hidden bg-white/95 dark:bg-[#18181b] border border-secondary-lighter/80 dark:border-gray-700 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all touch-manipulation"
                       >
                         <div className="absolute inset-x-0 -top-14 h-20 bg-gradient-to-r from-primary/12 via-secondary/10 to-primary/12 blur-3xl pointer-events-none" />
                         <div className="relative flex items-start justify-between gap-3">
-                          <div className="flex-1 space-y-1">
-                            <h3 className="font-semibold text-primary-dark dark:text-white text-base">
+                          <div className="flex-1 space-y-1.5">
+                            <h3 className="font-semibold text-primary-dark dark:text-white text-lg">
                               {a.patientName}
                             </h3>
                             <p className="text-sm text-secondary dark:text-gray-400">
-                              {fecha} ? {a.startTime} - {a.endTime}
+                              {fecha} · {a.startTime} - {a.endTime}
                             </p>
                             <p className="text-xs text-elegant-500 dark:text-elegant-400">
-                              {office  `Consultorio ${office.name}` : 'Consultorio sin asignar'}
+                              {office ? `Consultorio ${office.name}` : 'Consultorio sin asignar'}
                             </p>
                           </div>
                           <div className="flex flex-col items-end gap-2">
-                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                              a.status === 'completed'  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                              a.status === 'cancelled'  'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                              a.status === 'no-show'  'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
+                            <span className={`inline-block px-2.5 py-1.5 rounded-full text-xs font-semibold ${
+                              a.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                              a.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                              a.status === 'no-show' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
                               'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                             }`}>
                               {translateAppointmentStatus(a.status)}
                             </span>
                             {a.fee && (
-                              <span className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold ${paymentTone}`}>
-                                <DollarSign className="w-3.5 h-3.5" />
+                              <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${paymentTone}`}>
+                                <DollarSign className="w-4 h-4" />
                                 {paymentLabel}
                               </span>
                             )}
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-2 mt-3 text-xs text-elegant-600 dark:text-elegant-300">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-elegant-100 dark:bg-elegant-800/60">
-                            <CalendarDays className="w-3.5 h-3.5" />
-                            {a.fee  `$${a.fee.toLocaleString()}` : 'Sin honorarios'}
+                        <div className="flex flex-wrap gap-2 mt-4 text-xs text-elegant-600 dark:text-elegant-300">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-elegant-100 dark:bg-elegant-800/60">
+                            <CalendarDays className="w-4 h-4" />
+                            {a.fee ? `$${a.fee.toLocaleString()}` : 'Sin honorarios'}
                           </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-light">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary-light">
                             {a.type || 'Turno'}
                           </span>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-secondary-lighter dark:border-gray-700 mt-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-secondary-lighter dark:border-gray-700 mt-4">
                           <button
                             onClick={() => openPaymentDialog(a)}
                             disabled={!a.fee}
-                            className={`col-span-2 sm:col-span-2 btn-secondary justify-center text-sm disabled:opacity-40 ${paymentState.status === 'paid'  'bg-green-50 text-green-700 dark:bg-green-900/40 dark:text-green-200' : paymentState.status === 'partial'  'bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200' : 'text-danger'}`}
-                            title={a.fee && paymentState.remainingAmount > 0  `Pendiente: $${paymentState.remainingAmount.toLocaleString()}` : 'Pago completo'}
+                            className={`col-span-2 sm:col-span-2 btn-secondary justify-center text-base py-3 disabled:opacity-40 touch-manipulation ${
+                              paymentState.status === 'paid'
+                                ? 'bg-green-50 text-green-700 dark:bg-green-900/40 dark:text-green-200'
+                                : paymentState.status === 'partial'
+                                  ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200'
+                                  : 'text-danger'
+                            }`}
+                            title={a.fee && paymentState.remainingAmount > 0 ? `Pendiente: $${paymentState.remainingAmount.toLocaleString()}` : 'Pago completo'}
                           >
-                            <DollarSign className="w-4 h-4" />
-                            {paymentState.status === 'paid'  'Pagado' : 'Registrar pago'}
+                            <DollarSign className="w-5 h-5" />
+                            {paymentState.status === 'paid' ? 'Pagado' : 'Registrar pago'}
                           </button>
                           <button
                             onClick={() => handleEdit(a)}
-                            className="btn-primary justify-center text-sm"
+                            className="btn-primary justify-center text-base py-3 touch-manipulation"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-5 h-5" />
                             Editar
                           </button>
                           <button
                             onClick={() => handleCancel(a)}
-                            className="btn-secondary justify-center text-sm text-danger hover:text-danger-dark"
+                            className="btn-secondary justify-center text-base py-3 text-danger hover:text-danger-dark touch-manipulation"
                           >
-                            <Ban className="w-4 h-4" />
+                            <Ban className="w-5 h-5" />
                             Cancelar
                           </button>
                           <button
                             onClick={() => handleDelete(a)}
-                            className="btn-danger justify-center text-sm"
+                            className="btn-danger justify-center text-base py-3 touch-manipulation"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-5 h-5" />
                             Eliminar
                           </button>
                         </div>
@@ -613,13 +625,13 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <Modal open={showForm} onClose={()=>{setShowForm(false); setEditingAppointment(null);}} title={editingAppointment  'Editar Turno' : 'Nuevo Turno'} maxWidth="max-w-2xl">
+          <Modal open={showForm} onClose={()=>{setShowForm(false); setEditingAppointment(null);}} title={editingAppointment ? 'Editar Turno' : 'Nuevo Turno'} maxWidth="max-w-2xl">
             <AppointmentForm
               initialData={editingAppointment || undefined}
               onCreated={(appt: Appointment) => {
                 setShowForm(false);
                 setEditingAppointment(null);
-                toast.success(editingAppointment  'Turno actualizado correctamente' : 'Turno creado correctamente');
+                toast.success(editingAppointment ? 'Turno actualizado correctamente' : 'Turno creado correctamente');
                 refreshAppointments();
               }}
               onCancel={()=>{setShowForm(false); setEditingAppointment(null);}}
@@ -644,14 +656,14 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 bg-elegant-100 dark:bg-elegant-800/60 p-2 rounded-full">
               <button
                 type="button"
-                className={`flex-1 py-2 rounded-full text-sm font-semibold transition ${paymentDialog.mode === 'total'  'bg-primary text-white shadow' : 'text-elegant-600 dark:text-elegant-200'}`}
+                className={`flex-1 py-2 rounded-full text-sm font-semibold transition ${paymentDialog.mode === 'total' ? 'bg-primary text-white shadow' : 'text-elegant-600 dark:text-elegant-200'}`}
                 onClick={() => setPaymentDialog(p => ({ ...p, mode: 'total', amount: p.appointment.fee.toString() || '' }))}
               >
                 Pago total
               </button>
               <button
                 type="button"
-                className={`flex-1 py-2 rounded-full text-sm font-semibold transition ${paymentDialog.mode === 'partial'  'bg-primary text-white shadow' : 'text-elegant-600 dark:text-elegant-200'}`}
+                className={`flex-1 py-2 rounded-full text-sm font-semibold transition ${paymentDialog.mode === 'partial' ? 'bg-primary text-white shadow' : 'text-elegant-600 dark:text-elegant-200'}`}
                 onClick={() => setPaymentDialog(p => ({ ...p, mode: 'partial', amount: '' }))}
               >
                 Pago parcial
@@ -686,7 +698,7 @@ export default function DashboardPage() {
                 onClick={submitPayment}
                 disabled={submittingPayment}
               >
-                {submittingPayment  'Registrando...' : 'Registrar'}
+                {submittingPayment ? 'Registrando...' : 'Registrar'}
               </button>
             </div>
           </div>

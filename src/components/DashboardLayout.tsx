@@ -7,6 +7,7 @@ import GlassNavbar from './GlassNavbar';
 import ThemeToggle from './ThemeToggle';
 import { Footer } from './Footer';
 import TokenExpirationBanner from './TokenExpirationBanner';
+import InstallPrompt from './InstallPrompt';
 import {
   LayoutDashboard,
   Users,
@@ -147,6 +148,7 @@ export default function DashboardLayout({ children, mobileAction }: DashboardLay
       <Footer />
 
       <MobileNavBar items={navItems} action={mobileAction} />
+      <InstallPrompt />
     </div>
   );
 }
