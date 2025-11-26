@@ -33,7 +33,9 @@
       "Bash(taskkill /F /PID 41944)",
       "Bash(taskkill //F //PID 41944)",
       "Bash(taskkill /F /PID 32436)",
-      "Bash(taskkill //F //PID 32436)"
+      "Bash(taskkill //F //PID 32436)",
+      "Bash(timeout /t 10 /nobreak)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
